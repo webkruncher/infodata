@@ -64,9 +64,9 @@ fi
 
 if [ "${1}" == "-run" ]; then
 	shift
-	sudo pkill datafactory
+	sudo pkill krestdb
 	sleep 2
-	sudo ./go -testrun `pwd` $@ &
+	sudo ../src.build/db/krestdb ${1} --xml /home/jmt/websites/sites/webkruncher.xml  --node data --filter jackmthompson.ninja
 fi
 
 

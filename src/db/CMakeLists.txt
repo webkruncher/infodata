@@ -33,13 +33,13 @@ add_subdirectory( site )
 
 
 add_executable(
-	datatester
+	krestdb
 		main.cpp
 )
 
 
 target_include_directories(
-    datatester
+    krestdb
 	    PRIVATE
 		${INCLUDE_PATHS}
 		../include/
@@ -52,14 +52,14 @@ target_include_directories(
 
 
 target_link_directories(
-	datatester
+	krestdb
 		PUBLIC
 			${LIBRARY_PATHS}
 )
 
 
 target_link_libraries(
-	datatester
+	krestdb
 		PUBLIC
 			ssl
 			crypto
@@ -71,7 +71,7 @@ target_link_libraries(
 
 install(
     TARGETS
-	    datatester
+	    krestdb
 		    EXPORT exports
 		    RUNTIME DESTINATION bin
 ) 

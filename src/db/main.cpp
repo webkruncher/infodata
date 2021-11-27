@@ -81,7 +81,7 @@ int main( int argc, char** argv )
 			return 0;
 		}
 		
-		//cerr << yellow << "infodbservice is starting up" << normal << endl;
+		cerr << yellow << "krestdb is starting up" << normal << endl;
 		KruncherTools::Daemonizer daemon( options.daemonize, "DbSite" );
 
 		InfoKruncher::Service<InfoKruncher::DbSite> sites[ nSites ];
@@ -106,7 +106,11 @@ int main( int argc, char** argv )
 	catch( const string& s ) { ssexcept<<s;}
 	catch( const char* s ) { ssexcept<<s;}
 	catch( ... ) { ssexcept<<"unknown";}
-	if ( ! ssexcept.str().empty() ) Log( VERB_ALWAYS, "dbmain", ssexcept.str() );
+	if ( ! ssexcept.str().empty() ) 
+	{
+		cerr << red << ssexcept.str() << normal << endl;
+		Log( VERB_ALWAYS, "dbmain", ssexcept.str() );
+	}
 
 	return 0;
 }
