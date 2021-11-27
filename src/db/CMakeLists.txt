@@ -16,7 +16,6 @@ LibraryPaths(
 	krunchercore::ut/Directory/
 	krunchercore::ut/
 	datafactory::data/
-	datafactory::data/
 	informationkruncher::socks/
 )
 
