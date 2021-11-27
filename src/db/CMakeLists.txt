@@ -1,22 +1,30 @@
 
-set(INCLUDE_PATHS)
-IncludeProjects(
+
+
+
+Headers(
 	krunchercore
 	exexml
 	datakruncher
 	informationkruncher
-	infodata
 )
-set(LIBRARY_PATHS)
-set(LIBRARIES)
-IncludeLibraryPaths(
+
+
+LibraryPaths(
+	krunchercore::global/tracer/
+	krunchercore::global/
+	krunchercore::ut/Directory/
+	krunchercore::ut/
+	datafactory::data/
+	datafactory::data/
+	informationkruncher::socks/
+)
+
+
+Libraries(
+	krunchertrace
 	krunchercore
-	datakruncher
-	informationkruncher/socks
-	infodata/db
-	infodata/db/auth
-	infodata/db/records
-	infodata/db/site
+	informationkruncher
 )
 
 
@@ -26,13 +34,13 @@ add_subdirectory( site )
 
 
 add_executable(
-	datafactory
+	datatester
 		main.cpp
 )
 
 
 target_include_directories(
-    datafactory
+    datatester
 	    PRIVATE
 		${INCLUDE_PATHS}
 		../include/
@@ -45,34 +53,26 @@ target_include_directories(
 
 
 target_link_directories(
-	datafactory
+	datatester
 		PUBLIC
 			${LIBRARY_PATHS}
 )
 
 
 target_link_libraries(
-    datafactory
-	    PUBLIC
-			#infodata::db
-			#infodata::headers
-			#infodata::db::auth
-			#infodata::db::site
-			#infodata::db::records
-			#/home/jmt/libdb/build_unix/libdb_cxx.a
-			${LIBRARIES}
-			informationkruncher
+	datatester
+		PUBLIC
 			ssl
 			crypto
-			krunchertrace
 			site
 			auth
 			records
+			${LIBRARIES}
 )
 
 install(
     TARGETS
-	    datafactory
+	    datatester
 		    EXPORT exports
 		    RUNTIME DESTINATION bin
 ) 
