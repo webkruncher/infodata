@@ -54,7 +54,7 @@ mkdir -p ../src.build
 if [ "${1}" == "-nobuild" ]; then
 	shift
 else
-	echo -ne "\033[32mBuilding InformationKruncher\033[0m\n"
+	echo -ne "\033[32mBuilding infodata\033[0m\n"
 	cmake -S .  -B  ../src.build
 	[ $? != 0 ] && ShowBuild && exit -1
 	cmake  --build ../src.build/ 

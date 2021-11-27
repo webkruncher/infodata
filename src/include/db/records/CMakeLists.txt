@@ -5,7 +5,7 @@ install(
     FILES
 	    ${includes}    
 		    OPTIONAL
-		    DESTINATION include/infokruncher/db/records
+		    DESTINATION include/infokruncher/infodata/db/records
 )
 
 add_library(

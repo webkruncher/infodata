@@ -5,7 +5,7 @@ install(
     FILES
 	    ${includes}    
 		    OPTIONAL
-		    DESTINATION include/infokruncher/db/auth
+		    DESTINATION include/infokruncher/infodata/db/auth
 )
 
 add_library(

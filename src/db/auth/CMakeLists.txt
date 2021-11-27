@@ -38,5 +38,5 @@ target_link_libraries(
 )
 
 	    
-install(TARGETS auth DESTINATION lib/infokruncher/infodata/auth )
+install(TARGETS auth DESTINATION lib/infokruncher/infodata/db/auth )
 

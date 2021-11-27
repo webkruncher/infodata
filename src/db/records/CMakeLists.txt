@@ -47,5 +47,5 @@ target_link_libraries(
 )
 
 	    
-install(TARGETS records DESTINATION lib/infokruncher/infodata/records )
+install(TARGETS records DESTINATION lib/infokruncher/infodata/db/records )
 

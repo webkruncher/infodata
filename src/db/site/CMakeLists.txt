@@ -42,5 +42,5 @@ target_link_libraries(
 )
 
 	    
-install(TARGETS site DESTINATION lib/infokruncher/infodata/site )
+install(TARGETS site DESTINATION lib/infokruncher/infodata/db/site )
 
