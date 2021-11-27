@@ -5,17 +5,18 @@ IncludeProjects(
 	exexml
 	datakruncher
 	informationkruncher
+	infodata
 )
 set(LIBRARY_PATHS)
 set(LIBRARIES)
 IncludeLibraryPaths(
 	krunchercore
 	datakruncher
-	informationkruncher
-	infodata
-	infodata/auth
-	infodata/records
-	infodata/site
+	informationkruncher/socks
+	infodata/db
+	infodata/db/auth
+	infodata/db/records
+	infodata/db/site
 )
 
 
@@ -66,6 +67,7 @@ target_link_libraries(
 			krunchertrace
 			site
 			auth
+			records
 )
 
 install(
