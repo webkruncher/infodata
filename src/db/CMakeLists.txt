@@ -4,6 +4,7 @@
 
 Headers(
 	krunchercore
+	krunchercore::tracer
 	exexml
 	datakruncher
 	informationkruncher
