@@ -33,6 +33,10 @@
 namespace BdbSpace
 {
 	using namespace KruncherTools;
+	inline string& assign( string& a, const string& s )
+	{
+		return a;
+	}
 
 	struct DbMethod
 	{
@@ -52,9 +56,9 @@ namespace BdbSpace
 		void CrudLog( const string what, const KeyType& key, const ValueType& value ) const
 		{
 			stringstream ss;
-			ss << "Crud" << fence << what << fence;
-			ss << "Key size" << " " << sizeof( KeyType ) << " " << dotted( key ) << " "; 
-			ss << "Data size" << " " << sizeof( ValueType ) << " " << value;
+			//ss << "Crud" << fence << what << fence;
+			//ss << "Key size" << " " << sizeof( KeyType ) << " " << dotted( key ) << " "; 
+			//ss << "Data size" << " " << sizeof( ValueType ) << " " << value;
 			Log( VERB_CRUD, "CrudSupport" , ss.str() );
 		}
 	};
@@ -268,7 +272,7 @@ namespace BdbSpace
 		virtual void operator()( Db& db, DbEnv& env, DbTxn *txn )  const
 		{
 			typename DataType::KeyType K;
-			K << key;
+			assign(K, key);
 			if ( key.empty() )
 			{
 				BdbSpace::RecordCursor< DataType > cursor( o, DB_FIRST, DB_NEXT );
