@@ -118,6 +118,20 @@ namespace DbRecords
 		BdbSpace::DbUpdateMethod< typename DataType::KeyType,  typename DataType::ValueType> method;
 		RecordSet<DataType> records;
 	};
+
+	template <typename DataType>
+		struct RecordUpdater
+	{
+		RecordUpdater( const typename DataType::KeyType& _key, const typename DataType::ValueType& _value, const string datapath )
+			: umethod( _key, _value ), records( datapath ) 
+		{
+cout << "Look for " << _key << ", then update" << endl;
+			records( umethod );
+		}
+		private:
+		BdbSpace::DbUpdateMethod< typename DataType::KeyType,  typename DataType::ValueType> umethod;
+		RecordSet<DataType> records;
+	};
 	
 } // DbRecords
 

@@ -86,6 +86,7 @@ namespace BdbSpace
 	};
 
 
+
 } //BdbSpace
 
 #endif // DB_CURSOR_H
