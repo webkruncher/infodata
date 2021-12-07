@@ -53,6 +53,7 @@ namespace BdbSpace
 			//cerr << dbflagbugger( startflag ) <<  "|" << dbflagbugger( nextflag ) << endl;
 			Dbc *dbcp( NULL );
 			Dbt data( NULL, sizeof( ValueType ) );
+cerr << blue << "Looking for " << key << normal << endl;
 			Dbt K( (void*) &key, sizeof( KeyType ) );
 			bdb.cursor(txn, &dbcp, 0 ); 
 			if ( ! dbcp ) return;
@@ -68,9 +69,9 @@ namespace BdbSpace
 	};
 
 	template <typename DataType>
-		struct RecordCursor : BdbSpace::DbCursor< typename DataType::KeyType, typename DataType::ValueType >
+		struct CursorPrinter : BdbSpace::DbCursor< typename DataType::KeyType, typename DataType::ValueType >
 	{
-		RecordCursor( ostream& _o, const unsigned long startflag, const unsigned long nextflag ) : 
+		CursorPrinter( ostream& _o, const unsigned long startflag, const unsigned long nextflag ) : 
 			BdbSpace::DbCursor< typename DataType::KeyType, typename DataType::ValueType>( startflag, nextflag ),
 			o( _o )
 		{}

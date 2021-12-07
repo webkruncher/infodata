@@ -44,14 +44,14 @@ namespace DbRecords
 		struct RecordSet : Data
 	{
 		RecordSet( const string _datapath ) : datapath( _datapath ) {}
-		virtual string DataFile() const
+		virtual string DataPath() const
 		{
-			const string datafile( datapath + Data::TableName() );
-			const size_t ls( datafile.find_last_of( "/" ) );
-			if ( ls == string::npos ) throw Data::TableName();
-			const string datapath( datafile.substr( 0, ls ) );
-			KruncherDirectory::Directory d( datapath );
+			const string datafile( datapath + Data::TableName() + string( "/" ) );
+			KruncherDirectory::Directory d( datafile );
 			d(0777);
+			const string envpath( datapath + Data::TableName() + string( "/env/" ) );
+			KruncherDirectory::Directory dd( envpath );
+			dd(0777);
 			return datafile;
 		}
 
@@ -61,14 +61,16 @@ namespace DbRecords
 
 		void operator()( BdbSpace::DbMethod& method, bool transact=false )
 		{
-			const string datafile( DataFile() );
+			const string datadir( DataPath() );
 			stringstream ssexcept;
 			try
 			{
+				const string envpath( datadir + "env" );
 				const u_int32_t envFlags( EnvironmentFlags() );
-				BdbSpace::DataBaseEnvironment environment(  envFlags );
+				BdbSpace::DataBaseEnvironment environment(  envFlags, envpath );
 				if ( ! environment ) throw string("Can't create environment");
 				const u_int32_t openFlags( OpenFlags()  );
+				const string datafile( datadir + "db" );
 				BdbSpace::DataBase< typename Data::KeyType, typename Data::ValueType> database( datafile.c_str(), environment, openFlags, DatabaseType() );
 				if ( ! database.init() ) throw string( "Error initializing db" ); 
 
@@ -78,6 +80,7 @@ namespace DbRecords
 				if ( comparator ) database.setDupCompare( comparator );
 
 				if ( ! database.open() ) throw string( "Error opening db" ); 
+
 				database.Crud( method, transact );
 			}
 			catch (const DbDeadlockException  &dbe) { ssexcept << "DbDeadlockException: " << dbe.what() << endl; }
@@ -112,7 +115,7 @@ namespace DbRecords
 		RecordCreator( const typename DataType::KeyType& _key, const typename DataType::ValueType& _value, const string datapath )
 			: method( _key, _value ), records( datapath ) 
 		{
-			records( method );
+			records( method, true );
 		}
 		private:
 		BdbSpace::DbUpdateMethod< typename DataType::KeyType,  typename DataType::ValueType> method;
@@ -125,8 +128,8 @@ namespace DbRecords
 		RecordUpdater( const typename DataType::KeyType& _key, const typename DataType::ValueType& _value, const string datapath )
 			: umethod( _key, _value ), records( datapath ) 
 		{
-cout << "Look for " << _key << ", then update" << endl;
-			records( umethod );
+			cout << yellow << "Update " << _key << normal << endl;
+			records( umethod, true );
 		}
 		private:
 		BdbSpace::DbUpdateMethod< typename DataType::KeyType,  typename DataType::ValueType> umethod;

@@ -35,12 +35,13 @@ namespace BdbSpace
 	using namespace KruncherTools;
 	inline string& assign( string& a, const string& s )
 	{
+		a = s;
 		return a;
 	}
 
 	struct DbMethod
 	{
-		virtual void operator() ( Db& db, DbEnv& env, DbTxn *txn ) const = 0;
+		virtual void operator() ( Db& db, DbEnv& env, DbTxn *txn ) = 0;
 	};
 
 	template <typename KeyType, typename ValueType >
@@ -56,19 +57,19 @@ namespace BdbSpace
 		void CrudLog( const string what, const KeyType& key, const ValueType& value ) const
 		{
 			stringstream ss;
-			//ss << "Crud" << fence << what << fence;
-			//ss << "Key size" << " " << sizeof( KeyType ) << " " << dotted( key ) << " "; 
-			//ss << "Data size" << " " << sizeof( ValueType ) << " " << value;
+			ss << "Crud" << fence << what << fence;
+			ss << "Key size" << " " << sizeof( KeyType ) << " " << key << " "; 
+			ss << "Data size" << " " << sizeof( ValueType ) << " " << value;
 			Log( VERB_CRUD, "CrudSupport" , ss.str() );
 		}
 	};
 
 	template <typename KeyType, typename ValueType >
-		struct DbUpdateMethod : CrudSupport< KeyType, ValueType >, DbMethod
+		struct DbCreateMethod : CrudSupport< KeyType, ValueType >, DbMethod
 	{
-		DbUpdateMethod( const KeyType& _key, const ValueType& _value ) : key( _key ), value( _value ) {}
+		DbCreateMethod( const KeyType& _key, const ValueType& _value ) : key( _key ), value( _value ) {}
 		private:
-		virtual void operator () ( Db& db, DbEnv& env, DbTxn *txn )  const
+		virtual void operator () ( Db& db, DbEnv& env, DbTxn *txn )
 		{
 			CrudSupport<KeyType,ValueType>::CrudLog( "Create", key, value );
 			Dbt K( (void*) &key, sizeof( KeyType ) );
@@ -80,13 +81,36 @@ namespace BdbSpace
 		const ValueType& value;
 	}; 
 
+	template <typename KeyType, typename ValueType >
+		struct DbUpdateMethod : 
+			CrudSupport< KeyType, ValueType >, 
+			DbMethod
+	{
+		DbUpdateMethod( const KeyType& _key, const ValueType& _value ) 
+			: key( _key ), newvalue( _value ) {}
+		private:
+		virtual void operator () ( Db& db, DbEnv& env, DbTxn *txn )  
+		{
+			CrudSupport<KeyType,ValueType>::CrudLog( "Update", key, newvalue );
+			Dbt K( (void*) &key, sizeof( KeyType ) );
+			Dbt olddata( (void*) &newvalue, sizeof( ValueType ) );
+			Dbt data( (void*) &newvalue, sizeof( ValueType ) );
+			db.del(txn, &K, 0);
+			db.put(txn, &K, &data, 0);
+		}
+
+		const KeyType& key;
+		const ValueType& newvalue;
+		private:
+	}; 
+
 	struct DataBaseEnvironment
 	{
-		DataBaseEnvironment( const u_int32_t _envflags ) : envflags( _envflags ), envp( NULL ) {}
+		DataBaseEnvironment( const u_int32_t _envflags, const string& _path ) : envflags( _envflags ), envp( NULL ), path( _path ) {}
 		operator bool ()
 		{
 			envp = new DbEnv( 0 );
-			envp->open(".", envflags, 0);
+			envp->open(path.c_str(), envflags, 0);
 			envp->set_lk_detect(DB_LOCK_MINWRITE); 
 			return true;
 		}
@@ -102,6 +126,7 @@ namespace BdbSpace
 		private:
 		const u_int32_t envflags;
 		DbEnv *envp;
+		const string path;
 	};
 
 	template <typename KeyType, typename ValueType >
@@ -173,7 +198,6 @@ namespace BdbSpace
 						{
 							try 
 							{
-								cerr << "Commit record" << endl;
 								txn->commit(0);
 								retry = false;
 								txn = NULL;
@@ -269,16 +293,16 @@ namespace BdbSpace
 	{
 		QueryMethod( ostream& _o, const string _key ) : o( _o ), key( _key ) {}
 		private:
-		virtual void operator()( Db& db, DbEnv& env, DbTxn *txn )  const
+		virtual void operator()( Db& db, DbEnv& env, DbTxn *txn )
 		{
 			typename DataType::KeyType K;
 			assign(K, key);
 			if ( key.empty() )
 			{
-				BdbSpace::RecordCursor< DataType > cursor( o, DB_FIRST, DB_NEXT );
+				BdbSpace::CursorPrinter< DataType > cursor( o, DB_FIRST, DB_NEXT );
 				cursor( db, txn, K );
 			} else {
-				BdbSpace::RecordCursor< DataType > cursor( o, DB_SET, DB_NEXT_DUP );
+				BdbSpace::CursorPrinter< DataType > cursor( o, DB_SET, DB_NEXT_DUP );
 				cursor( db, txn, K );
 			}
 		}
