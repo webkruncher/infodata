@@ -29,8 +29,8 @@
 #ifndef INFODATASERVICE_H
 #define INFODATASERVICE_H
 
+#include <recordset.h>
 #include <db/site/infodb.h>
-#include <db/records/recordset.h>
 #include <visitors/visitor.h>
 
 namespace InfoDataService
