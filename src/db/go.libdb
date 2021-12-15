@@ -1,4 +1,7 @@
 
+#Deprecated - use testfactory/utilities/Bdb.ksh
+
+exit -1
 
 pushd ~/libdb
 echo -ne "\033[32mBuilding bdb\033[0m\n"
