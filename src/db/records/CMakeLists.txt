@@ -39,8 +39,6 @@ target_link_libraries(
     records
 	    PUBLIC
 			${LIBRARIES}
-			kruncher::headers
-			kruncher::db
 			/home/jmt/libdb/build_unix/libdb_cxx.a
 			ssl
 			crypto
@@ -49,3 +47,5 @@ target_link_libraries(
 	    
 install(TARGETS records DESTINATION lib/infokruncher/infodata/db/records )
 
+			#kruncher::headers
+			#kruncher::db

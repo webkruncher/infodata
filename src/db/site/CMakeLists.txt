@@ -26,6 +26,8 @@ target_include_directories(
 		${INCLUDE_PATHS}
 		/home/jmt/libdb/build_unix
 		/usr/local/lib/eopenssl11
+		../../include/
+		../../include/db
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
 		$<INSTALL_INTERFACE:include>
 )
@@ -34,8 +36,8 @@ target_link_libraries(
     site
 	    PUBLIC
 			${LIBRARIES}
-			kruncher::headers
-			kruncher::db
+			#kruncher::headers
+			#kruncher::db
 			/home/jmt/libdb/build_unix/libdb_cxx.a
 			ssl
 			crypto
