@@ -2,125 +2,28 @@
 . ../../krunchercore/Builder.ksh
 
 
-OStag=`uname -a | cut -d ' ' -f1`
-[ ${OStag} == "Linux" ] && export OS=LINUX
-[ ${OStag} == "OpenBSD" ] && export OS=UNIX
-
-if [ "${1}" == "-testrun" ]; then
-	shift
-	cd $1
-	shift
-	#export INFO_TEST_IP=73.201.184.88 
-	echo "../src.build/db/datafactory $@ --xml /home/jmt/websites/sites/webkruncher.st.xml  --node data --filter `hostname` "
-	../src.build/db/datafactory $@ --xml /home/jmt/websites/sites/webkruncher.st.xml  --node data --filter `hostname` 
-	exit
-fi
-
-
-if [ ${OStag} == "OpenBSD" ]; then 
-	if [ "${1}" == "pkg_add" ]; then
-		if [ "`id | cut -d '(' -f2 | cut -d ')' -f1`" == "root" ]; then
-			echo -ne "\033[32mInstalling packages...\033[0m\n"
-			for pkg in sudo bash vim git cmake; do
-				echo -ne "\033[35mpkg_add ${pkg}\033[0m\n"
-				pkg_add ${pkg}
-			done;
-		else
-			echo -ne "\033[31mpkg_add must be run as root\033[0m\n"
-			exit
-		fi
-	fi
-fi
-
-if [ "${1}" == "-bdb" ]; then
-	shift
-	db/go.libdb $@
-fi
-
 
 if [ "${1}" == "-rebuild" ]; then
 	shift
-	echo -ne "\033[33mDeleting infokruncher database\033[0m\n"
-	sudo rm -rf /var/db/infokruncher/
-	pushd ../../krunchercore/src
+	pushd ../../informationkruncher/src
 	[ -d ../src.build ] && sudo rm -rf ../src.build
-	./go -rebuild
+	Build
 	popd
-	[ -d ../src.build ] && sudo rm -rf ../src.build
 fi
 
-mkdir -p ../src.build
 
 if [ "${1}" == "-nobuild" ]; then
 	shift
 else
 	echo -ne "\033[32mBuilding infodata\033[0m\n"
-	cmake -S .  -B  ../src.build
-	[ $? != 0 ] && ShowBuild && exit -1
-	cmake  --build ../src.build/ 
-	#[ $? != 0 ] && ShowBuild && exit -1
-	[ $? != 0 ] && exit -1
+	[ -d ../src.build ] && sudo rm -rf ../src.build
+	Build
 fi
 
 if [ "${1}" == "-run" ]; then
 	shift
 	sudo pkill krestdb
 	sleep 2
-	sudo ../src.build/db/krestdb ${1} --xml /home/jmt/websites/sites/webkruncher.xml  --node data --filter jackmthompson.ninja
+	sudo ../src.build/db/krestdb ${1} --xml /home/jmt/Info/websites/sites/webkruncher.xml  --node data --filter jackmthompson.ninja
 fi
-
-
-if [ "${1}" == "-show" ]; then
-	shift
-	if [ "${1}" == "-key" ]; then
-		shift
-		if [ "${1}" == "-" ]; then
-			echo -ne "#\033[42m\033[34mHard coded tests\033[0m\n" >> /dev/stderr
-			sudo ../src.build/db/datafactory --show visitors/hit --key 194.182.178.143 -d --xml /home/jmt/websites/sites/webkruncher.xml  --node data --filter jackmthompson.ninja
-			sudo ../src.build/db/datafactory --show visitors/hit --key 73.201.184.88 -d --xml /home/jmt/websites/sites/webkruncher.xml  --node data --filter jackmthompson.ninja
-			sudo ../src.build/db/datafactory --show visitors/hit --key 194.182.177.1 -d --xml /home/jmt/websites/sites/webkruncher.xml  --node data --filter jackmthompson.ninja
-		else
-			echo -ne "#\033[42m\033[34mSearch:${1}\033[0m\n" >> /dev/stderr
-			sudo ../src.build/db/datafactory --show visitors/hit --key ${1} -d --xml /home/jmt/websites/sites/webkruncher.xml  --node data --filter jackmthompson.ninja
-		fi
-	else
-		echo -ne "#\033[42m\033[34mAll keys test\033[0m\n" >> /dev/stderr
-		sudo ../src.build/db/datafactory --show visitors/hit -d --xml /home/jmt/websites/sites/webkruncher.xml  --node data --filter jackmthompson.ninja
-	fi
-fi
-
-if [ "${1}" == "-gdb" ]; then
-	shift
-	sudo pkill datafactory
-	sleep 2
-	sudo ./go -testrun `pwd` $@ &
-	leaders="0"
-	while [ "${leaders}" != "1" ]; do
-		sudo ps xo stat,pid,comm | grep datafactory | grep '^S'
-		leaders=`sudo ps xo stat,pid,comm | grep datafactory | grep '^S' | wc -l | tr -d ' '`
-		echo "There are ${leaders} leaders processes"
-		sleep 1
-	done
-	children="0"
-	while [ "${children}" != "1" ]; do
-		sudo ps xo stat,pid,comm | grep datafactory | grep '^I'
-		children=`sudo ps xo stat,pid,comm | grep datafactory | grep '^I' | wc -l | tr -d ' '`
-		echo "There are ${children} child processes"
-		sleep 1
-	done
-
-	pid=`ps xao stat,pid,comm | grep datafactory | sed '/^S/d' | tr -s ' ' | cut -d ' ' -f2`
-	echo "Leader PID:${pid}"
-	sudo gdb -p ${pid}
-	
-	exit
-fi
-
-
-[ "${1}" == "-install" ] &&  sudo cmake --install ../src.build
-
-
-
-
-exit 0
 

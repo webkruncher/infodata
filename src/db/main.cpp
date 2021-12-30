@@ -43,7 +43,7 @@ namespace InfoKruncher
 			Log( ssmsg.str() );
 			return true;
 		}
-		void PostProcessing( InfoKruncher::Responder& responder, InfoKruncher::RestResponse& DefaultResponse, const string& PostedContent ) 
+		void PostProcessing( InfoKruncher::Responder& responder, InfoKruncher::RestResponse& DefaultResponse, const binarystring& PostedContent ) 
 		{
 			InfoSite::PostProcessing( responder, DefaultResponse, PostedContent );
 		}
@@ -66,6 +66,7 @@ int main( int argc, char** argv )
 	{
 		//VERBOSITY=VERB_SIGNALS|VERB_SSOCKETS;
 		VERBOSITY=VERB_CRUD;
+		VERBOSITY=VERB_CONSOLE;
 		InfoKruncher::Options< InfoKruncher::ServiceList > options( argc, argv );
 		if ( ! options ) throw string( "Invalid options" );
 		if ( options.find( "-d" ) == options.end() ) Initialize();

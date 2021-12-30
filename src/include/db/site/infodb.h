@@ -67,3 +67,4 @@ inline in_addr& assign( in_addr& a, const string& s )
 }
 
 #endif // INFOKRUNCHER_DATA_H
+

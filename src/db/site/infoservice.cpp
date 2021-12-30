@@ -40,9 +40,11 @@ namespace InfoKruncher
 
 	void InfoSite::LoadResponse( InfoKruncher::Responder& r, InfoKruncher::RestResponse& Responder )
 	{
+		Log( VERB_ALWAYS, "InfoSite->Entry", r.options.datapath );
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
-		//records=r.options.datapath;
+		records=r.options.datapath;
 		records+=r;
+
 
 		InfoDataService::DataResource Payload( r, records );
 		const int payloadstatus( Payload );
@@ -64,18 +66,22 @@ namespace InfoKruncher
 		const int AuthorizationStatus( auth );
 
 		Responder( AuthorizationStatus, Payload.contenttype, ServiceName, records.IsNewCookie(), records.CookieName(), records.Cookie(), auth );
+		Log( VERB_ALWAYS, "InfoSite::LoadPayload", Payload.uri );
 		return ;
 	}
 
 	bool InfoSite::ProcessForm( const string formpath, stringmap& formdata )
 	{
 		stringstream ssmsg;  ssmsg << "InfoSite::ProcessForm" << fence << formpath << fence << formdata;
-		Log( ssmsg.str() );
+		Log( VERB_ALWAYS, "InfoSite::ProcessForm", ssmsg.str() );
 		return true;
 	}
 
-	void InfoSite::PostProcessing( InfoKruncher::Responder&, InfoKruncher::RestResponse& DefaultResponse, const string& PostedContent ) 
+	void InfoSite::PostProcessing( InfoKruncher::Responder&, InfoKruncher::RestResponse& DefaultResponse, const binarystring& PostedContent ) 
 	{
+		Log( VERB_ALWAYS, "InfoSite::PostProcessing", (char*) PostedContent.data() );
+		return;
+		
 		stringmap formdata;
 		PostProcessingXml::PostedXml xml( formdata, *this );
 		xml.Load( (char*)PostedContent.c_str() );

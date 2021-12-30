@@ -85,7 +85,7 @@ namespace InfoDataService
 				SetCookie( ExistingCookie );
 
 			//commit();
-			DbRecords::RecordCreator<Visitors::VisitorData>( r.ipaddr, hit, r.options.datapath  );
+			//DbRecords::RecordCreator<Visitors::VisitorData>( r.ipaddr, hit, r.options.datapath  );
 		}
 
 		bool IsNewCookie() const { return NewVisitor; }
@@ -141,6 +141,10 @@ namespace InfoDataService
 	
 	inline DataResource::operator int ()
 	{
+		return 0;
+
+
+
 		const bool IsDefault( responder.IsDefault() );
 		uri= ( IsDefault  ? "index.html" : string(".") + responder.resource );
 		contenttype=( Hyper::ContentType( uri ) );
