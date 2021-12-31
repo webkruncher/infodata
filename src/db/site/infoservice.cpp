@@ -67,6 +67,12 @@ namespace InfoKruncher
 
 		Responder( AuthorizationStatus, Payload.contenttype, ServiceName, records.IsNewCookie(), records.CookieName(), records.Cookie(), auth );
 		Log( VERB_ALWAYS, "InfoSite::LoadPayload", Payload.uri );
+
+
+		stringstream ssh; ssh << r.method << " " << r.resource << " HTTP/1.1" << endl << r.headers;	
+		cerr << "HeadersSize:" << ssh.str().size() << endl;
+		cerr << "Headers:" << ssh.str() << endl;
+		
 		return ;
 	}
 
@@ -79,7 +85,17 @@ namespace InfoKruncher
 
 	void InfoSite::PostProcessing( InfoKruncher::Responder&, InfoKruncher::RestResponse& DefaultResponse, const binarystring& PostedContent ) 
 	{
-		Log( VERB_ALWAYS, "InfoSite::PostProcessing", (char*) PostedContent.data() );
+		//Log( VERB_ALWAYS, "InfoSite::PostProcessing", (char*) PostedContent.data() );
+		cerr << "Got content:" << PostedContent.size() << endl;
+
+		string payload;
+		payload.assign( (char*) PostedContent.data(), PostedContent.size() );
+
+                const string FirstChar( payload.substr( 0, 1 ) );
+                const string LastChar( payload.substr( payload.size()-1, 1 ) );
+                cerr << "Size:" << payload.size() << endl;
+                cerr << "First:" << FirstChar << ", Last:" << LastChar << endl;
+
 		return;
 		
 		stringmap formdata;

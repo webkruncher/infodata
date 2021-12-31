@@ -141,10 +141,6 @@ namespace InfoDataService
 	
 	inline DataResource::operator int ()
 	{
-		return 0;
-
-
-
 		const bool IsDefault( responder.IsDefault() );
 		uri= ( IsDefault  ? "index.html" : string(".") + responder.resource );
 		contenttype=( Hyper::ContentType( uri ) );
