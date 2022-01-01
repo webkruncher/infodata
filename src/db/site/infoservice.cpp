@@ -36,17 +36,32 @@
 
 namespace InfoKruncher
 {
-	const string ServiceName( "InformationKruncher" );
+	const string ServiceName( "InfoData" );
+	struct InfoResource : InfoDataService::DataResource
+	{
+		InfoResource( const InfoKruncher::Responder& _responder, Visitors::VisitorBase& _visitor  ) 
+			: DataResource( _responder,  _visitor ) {}
+		operator int ()
+		{
+			data=(unsigned char*) malloc( 3 );
+			memset( data, 0, 3 );
+			sprintf( (char*) data, "%s", "{}" );
+			datalength=2;
+			return 0;
+		}
+	};
 
 	void InfoSite::LoadResponse( InfoKruncher::Responder& r, InfoKruncher::RestResponse& Responder )
 	{
-		Log( VERB_ALWAYS, "InfoSite->Entry", r.options.datapath );
+		Log( VERB_ALWAYS, "InfoSite->Entry", r.resource );
+
+
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
 		records=r.options.datapath;
 		records+=r;
 
 
-		InfoDataService::DataResource Payload( r, records );
+		InfoResource Payload( r, records );
 		const int payloadstatus( Payload );
 		if ( payloadstatus ) 
 		{
