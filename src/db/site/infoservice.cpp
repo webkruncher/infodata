@@ -43,10 +43,6 @@ namespace InfoKruncher
 			: DataResource( _responder,  _visitor ) {}
 		operator int ()
 		{
-			data=(unsigned char*) malloc( 3 );
-			memset( data, 0, 3 );
-			sprintf( (char*) data, "%s", "{}" );
-			datalength=2;
 			return 0;
 		}
 	};
@@ -76,13 +72,16 @@ namespace InfoKruncher
 				return ;
 			}
 
+#if 0
+		Responder( 200, Payload.contenttype, ServiceName, records.IsNewCookie(), records.CookieName(), records.Cookie(), Payload );
+#else
 		InfoDb::Site::Roles roles( r.options.scheme, Payload.uri, r.headers, r.ipaddr, r.options.text );	
 		InfoAuth::Authorization auth( Payload.payload.str(), Payload.contenttype, roles );
 		const int AuthorizationStatus( auth );
 
 		Responder( AuthorizationStatus, Payload.contenttype, ServiceName, records.IsNewCookie(), records.CookieName(), records.Cookie(), auth );
 		Log( VERB_ALWAYS, "InfoSite::LoadPayload", Payload.uri );
-
+#endif
 
 		stringstream ssh; ssh << r.method << " " << r.resource << " HTTP/1.1" << endl << r.headers;	
 		cerr << "HeadersSize:" << ssh.str().size() << endl;
@@ -98,7 +97,7 @@ namespace InfoKruncher
 		return true;
 	}
 
-	void InfoSite::PostProcessing( InfoKruncher::Responder&, InfoKruncher::RestResponse& DefaultResponse, const binarystring& PostedContent ) 
+	void InfoSite::PostProcessing( InfoKruncher::Responder& respond, InfoKruncher::RestResponse& DefaultResponse, const binarystring& PostedContent ) 
 	{
 		//Log( VERB_ALWAYS, "InfoSite::PostProcessing", (char*) PostedContent.data() );
 		cerr << "Got content:" << PostedContent.size() << endl;
@@ -110,6 +109,14 @@ namespace InfoKruncher
                 const string LastChar( payload.substr( payload.size()-1, 1 ) );
                 cerr << "Size:" << payload.size() << endl;
                 cerr << "First:" << FirstChar << ", Last:" << LastChar << endl;
+
+
+			cerr << "Setting xx response" << endl;
+			unsigned char* data=(unsigned char*) malloc( 3 );
+			memset( data, 0, 3 );
+			sprintf( (char*) data, "%s", "xx" );
+			DefaultResponse.Set( data, 3 );
+
 
 		return;
 		
