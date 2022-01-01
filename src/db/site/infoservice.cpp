@@ -90,7 +90,7 @@ namespace InfoKruncher
 		payload.assign( (char*) PostedContent.data(), PostedContent.size() );
 
 		stringstream get;
-		get << "Processing:" << respond.method << fence << respond.resource << payload;
+		get << fence << respond.method << fence << respond.resource << payload;
 		const size_t Len( get.str().size() );
 
 		InfoMarketData::MarketData markets( respond.options );
