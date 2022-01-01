@@ -41,15 +41,11 @@ namespace InfoKruncher
 	{
 		InfoResource( const InfoKruncher::Responder& _responder, Visitors::VisitorBase& _visitor  ) 
 			: DataResource( _responder,  _visitor ) {}
-		operator int ()
-		{
-			return 0;
-		}
+		operator int () { return 0; }
 	};
 
 	void InfoSite::LoadResponse( InfoKruncher::Responder& r, InfoKruncher::RestResponse& Responder )
 	{
-		Log( VERB_ALWAYS, "InfoSite->Entry", r.resource );
 
 
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
@@ -72,21 +68,13 @@ namespace InfoKruncher
 				return ;
 			}
 
-#if 0
-		Responder( 200, Payload.contenttype, ServiceName, records.IsNewCookie(), records.CookieName(), records.Cookie(), Payload );
-#else
 		InfoDb::Site::Roles roles( r.options.scheme, Payload.uri, r.headers, r.ipaddr, r.options.text );	
 		InfoAuth::Authorization auth( Payload.payload.str(), Payload.contenttype, roles );
 		const int AuthorizationStatus( auth );
 
 		Responder( AuthorizationStatus, Payload.contenttype, ServiceName, records.IsNewCookie(), records.CookieName(), records.Cookie(), auth );
-		Log( VERB_ALWAYS, "InfoSite::LoadPayload", Payload.uri );
-#endif
+		//Log( VERB_ALWAYS, "InfoSite::LoadPayload", Payload.uri );
 
-		stringstream ssh; ssh << r.method << " " << r.resource << " HTTP/1.1" << endl << r.headers;	
-		cerr << "HeadersSize:" << ssh.str().size() << endl;
-		cerr << "Headers:" << ssh.str() << endl;
-		
 		return ;
 	}
 
@@ -99,31 +87,18 @@ namespace InfoKruncher
 
 	void InfoSite::PostProcessing( InfoKruncher::Responder& respond, InfoKruncher::RestResponse& DefaultResponse, const binarystring& PostedContent ) 
 	{
-		//Log( VERB_ALWAYS, "InfoSite::PostProcessing", (char*) PostedContent.data() );
-		cerr << "Got content:" << PostedContent.size() << endl;
-
 		string payload;
 		payload.assign( (char*) PostedContent.data(), PostedContent.size() );
 
-                const string FirstChar( payload.substr( 0, 1 ) );
-                const string LastChar( payload.substr( payload.size()-1, 1 ) );
-                cerr << "Size:" << payload.size() << endl;
-                cerr << "First:" << FirstChar << ", Last:" << LastChar << endl;
+		stringstream got;
+		got << payload;
+		const size_t Len( got.str().size() );
 
-
-			cerr << "Setting xx response" << endl;
-			unsigned char* data=(unsigned char*) malloc( 3 );
-			memset( data, 0, 3 );
-			sprintf( (char*) data, "%s", "xx" );
-			DefaultResponse.Set( data, 3 );
-
-
-		return;
-		
-		stringmap formdata;
-		PostProcessingXml::PostedXml xml( formdata, *this );
-		xml.Load( (char*)PostedContent.c_str() );
-		if ( ! xml ) Log( "InfoSite::PostProcessing", "Form processing failed" );
+		// TBD: Consider placement new / delete, Find ~/Info malloc
+		unsigned char* data=(unsigned char*) malloc( Len );
+		memset( data, 0, Len );
+		memcpy( (char*) data, got.str().c_str(), Len );
+		DefaultResponse.Set( data, Len );
 	}
 
 	void InfoSite::Throttle( const InfoKruncher::SocketProcessOptions& svcoptions )
@@ -142,3 +117,4 @@ namespace InfoDataService
 	}
 
 } // InfoDataService
+
