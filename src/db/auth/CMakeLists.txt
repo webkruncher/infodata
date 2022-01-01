@@ -2,6 +2,36 @@
 message("Building infodata/db/auth")
 
 
+
+
+
+Headers(
+	krunchercore
+	krunchercore::tracer
+	exexml
+	datakruncher
+	informationkruncher
+)
+
+
+LibraryPaths(
+	krunchercore::global/tracer/
+	krunchercore::global/
+	krunchercore::ut/Directory/
+	krunchercore::ut/
+	datafactory::data/
+	datakruncher::market/
+	informationkruncher::socks/
+)
+
+
+Libraries(
+	krunchertrace
+	krunchercore
+	marketdata
+	informationkruncher
+)
+
 set (LIBSRC
 	infoxmlauth.cpp
 )

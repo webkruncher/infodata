@@ -1,5 +1,6 @@
 
 
+
 Headers(
 	krunchercore
 	krunchercore::tracer
@@ -7,13 +8,26 @@ Headers(
 	datakruncher
 	datakruncher::markets
 	informationkruncher
-	infodata
-	infodata::db
-	infodata::db/auth
-	infodata::db/records
-	infodata::db/site
 )
 
+
+LibraryPaths(
+	krunchercore::global/tracer/
+	krunchercore::global/
+	krunchercore::ut/Directory/
+	krunchercore::ut/
+	datafactory::data/
+	datakruncher::market/
+	informationkruncher::socks/
+)
+
+
+Libraries(
+	krunchertrace
+	krunchercore
+	marketdata
+	informationkruncher
+)
 
 
 

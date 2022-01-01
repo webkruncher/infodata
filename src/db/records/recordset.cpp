@@ -43,8 +43,8 @@ using namespace std;
 using namespace BdbSpace;
 using namespace DbRecords;
 
-#include <infokruncher.h>
-#include <infosite.h>
+//#include <infokruncher.h>
+//#include <infosite.h>
 
 #include <Ticker.h>
 using namespace StockMarket;
@@ -58,7 +58,6 @@ namespace InfoMarketData
 		void Create( const string symbol, const string name, const string market )
 		{
 			memset( &record, 0, sizeof( record ) );
-			//SetSymbol( symbol );
 			SetName( name );
 			SetMarket( market );
 			SetLastUpdatedUTC( time( 0 ) );
@@ -68,7 +67,6 @@ namespace InfoMarketData
 		void Update( const string symbol, const string name, const string market )
 		{
 			memset( &record, 0, sizeof( record ) );
-			//SetSymbol( symbol );
 			SetName( name );
 			SetMarket( market );
 			SetLastUpdatedUTC( time( 0 ) );
@@ -82,22 +80,27 @@ namespace InfoMarketData
 		}
 	};
 
-
-
-
-	MarketData::operator bool()
+	pair< unsigned char*,size_t > MarketData::operator()( const string& payload ) 
 	{	
 		string tickersymbol( "WIP" );
 		Record record;
-		if ( update )
+		if ( false )
 		{
 			record.Update( tickersymbol, tickersymbol + string(" updated" ), "updr" );
 		} else {
 			record.Create( tickersymbol, tickersymbol + string(" created" ), "newr" );
 		}
-		return true;
+
+		stringstream ssr;
+		ssr << payload;
+		const size_t Len( ssr.str().size() );
+		// TBD: Consider placement new / delete, Find ~/Info malloc
+		unsigned char* data=(unsigned char*) malloc( Len );
+		memset( data, 0, Len );
+		memcpy( (char*) data, ssr.str().c_str(), Len );
+		pair< unsigned char*,size_t > ret( data, Len );
+		return ret;
 	}
 
-
-
 } // namespace InfoMarketData
+

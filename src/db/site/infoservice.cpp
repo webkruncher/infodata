@@ -32,6 +32,7 @@
 #include <site/infodataservice.h>
 #include <exexml.h>
 #include <site/PostProcessor.h>
+#include <records/inforecords.h>
 
 
 namespace InfoKruncher
@@ -46,8 +47,6 @@ namespace InfoKruncher
 
 	void InfoSite::LoadResponse( InfoKruncher::Responder& r, InfoKruncher::RestResponse& Responder )
 	{
-
-
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
 		records=r.options.datapath;
 		records+=r;
@@ -90,15 +89,15 @@ namespace InfoKruncher
 		string payload;
 		payload.assign( (char*) PostedContent.data(), PostedContent.size() );
 
-		stringstream got;
-		got << payload;
-		const size_t Len( got.str().size() );
+		stringstream get;
+		get << respond.method << fence << respond.resource << payload;
+		const size_t Len( get.str().size() );
 
-		// TBD: Consider placement new / delete, Find ~/Info malloc
-		unsigned char* data=(unsigned char*) malloc( Len );
-		memset( data, 0, Len );
-		memcpy( (char*) data, got.str().c_str(), Len );
-		DefaultResponse.Set( data, Len );
+		InfoMarketData::MarketData markets( respond.options );
+		pair< unsigned char*,size_t > result( markets( get.str() ) );
+
+		if ( result.second )
+			DefaultResponse.Set( result.first, result.second );
 	}
 
 	void InfoSite::Throttle( const InfoKruncher::SocketProcessOptions& svcoptions )
