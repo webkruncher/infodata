@@ -1,5 +1,20 @@
 
 
+Headers(
+	krunchercore
+	krunchercore::tracer
+	exexml
+	datakruncher
+	datakruncher::markets
+	informationkruncher
+	infodata
+	infodata::db
+	infodata::db/auth
+	infodata::db/records
+	infodata::db/site
+)
+
+
 
 
 #get_filename_component(INCLUDES_PATH ../include/db/ REALPATH) 

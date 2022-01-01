@@ -46,7 +46,58 @@ using namespace DbRecords;
 #include <infokruncher.h>
 #include <infosite.h>
 
-namespace DbRecords
+#include <Ticker.h>
+using namespace StockMarket;
+#include <inforecords.h>
+
+namespace InfoMarketData
 {
 
-} // namespace DbRecords
+	struct Record : private DbRecords::RecordSetBase, StockMarket::TickerBase
+	{
+		void Create( const string symbol, const string name, const string market )
+		{
+			memset( &record, 0, sizeof( record ) );
+			//SetSymbol( symbol );
+			SetName( name );
+			SetMarket( market );
+			SetLastUpdatedUTC( time( 0 ) );
+			DbRecords::RecordCreator<StockMarket::TickerBase> R( symbol, record, "./db/" );
+		}
+
+		void Update( const string symbol, const string name, const string market )
+		{
+			memset( &record, 0, sizeof( record ) );
+			//SetSymbol( symbol );
+			SetName( name );
+			SetMarket( market );
+			SetLastUpdatedUTC( time( 0 ) );
+			DbRecords::RecordUpdater<StockMarket::TickerBase> R( symbol, record, "./db/" );
+		}
+
+		void Retrieve( const string symbol="" )
+		{
+			memset( &record, 0, sizeof( record ) );
+			DbRecords::RecordPrinter<StockMarket::TickerBase> R( cout, symbol, "./db/"  );
+		}
+	};
+
+
+
+
+	MarketData::operator bool()
+	{	
+		string tickersymbol( "WIP" );
+		Record record;
+		if ( update )
+		{
+			record.Update( tickersymbol, tickersymbol + string(" updated" ), "updr" );
+		} else {
+			record.Create( tickersymbol, tickersymbol + string(" created" ), "newr" );
+		}
+		return true;
+	}
+
+
+
+} // namespace InfoMarketData
