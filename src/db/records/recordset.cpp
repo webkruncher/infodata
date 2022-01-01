@@ -96,16 +96,17 @@ namespace InfoMarketData
 		SetCompositeFigi( composite_figi );
 		SetShareClassFigi( share_class_figi );
 		SetLastUpdatedUTC( last_updated );
-		DbRecords::RecordCreator<StockMarket::TickerBase> R( ticker, record, "./bdb/" );
-		const unsigned long status( R );
-		if ( R )
+		DbRecords::RecordUpdater<StockMarket::TickerBase> R( ticker, record, "./bdb/" );
+		const unsigned long nupdates( R );
+		if ( nupdates > 1 ) throw string( "ERROR - Multiple records" );
+		if ( nupdates == 0 )
 		{
-			cerr << "Cannot create, updating" << endl;
-			DbRecords::RecordUpdater<StockMarket::TickerBase> R( ticker, record, "./bdb/" );
+			cerr << "Cannot update, creating" << endl;
+			DbRecords::RecordCreator<StockMarket::TickerBase> R( ticker, record, "./bdb/" );
 			const unsigned long status( R );
-			if ( R ) 
+			if ( status ) 
 			{
-				cerr << "Cannot update" << endl;
+				cerr << "Cannot create" << endl;
 				stringstream ssr;
 				ssr << "ERROR" << fence << payload;
 				const size_t Len( ssr.str().size() );
