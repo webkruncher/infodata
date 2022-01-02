@@ -76,24 +76,17 @@ namespace InfoMarketData
 		{
 			cerr << "Cannot update, creating" << endl;
 			DbRecords::RecordCreator<StockMarket::TickerBase> Create( ticker, record, "./bdb/" );
-			const unsigned long status( Create );
-			if ( status ) 
+			const unsigned long createstatus( Create );
+			if ( createstatus ) 
 			{
 				cerr << red << "Cannot create" << normal << endl;
-				stringstream ssr;
-				ssr << "ERROR" << fence << payload;
-				const size_t Len( ssr.str().size() );
-				// TBD: Consider placement new / delete, Find ~/Info malloc
-				unsigned char* data=(unsigned char*) malloc( Len );
-				memset( data, 0, Len );
-				memcpy( (char*) data, ssr.str().c_str(), Len );
-				pair< unsigned char*,size_t > ret( data, Len );
-				return ret;
 			} else {
 				cerr << blue << "Created " << ticker << normal << endl;
+				Status=200;
 			}
 		} else {
 			cerr << blue << "Updated " << nupdates << " " << ticker << normal << endl;
+			Status=200;
 		}
 
 		stringstream ssr;

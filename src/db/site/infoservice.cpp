@@ -97,6 +97,8 @@ namespace InfoKruncher
 		const string& s( get.str() );
 		pair< unsigned char*,size_t > result( markets( s ) );
 
+		DefaultResponse.SetStatus( markets );
+
 		if ( result.second )
 			DefaultResponse.Set( result.first, result.second );
 
