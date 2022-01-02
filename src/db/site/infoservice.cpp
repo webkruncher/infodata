@@ -47,10 +47,10 @@ namespace InfoKruncher
 
 	void InfoSite::LoadResponse( InfoKruncher::Responder& r, InfoKruncher::RestResponse& Responder )
 	{
+		//cerr << teal << r.method << " " << r.resource << normal << endl;
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
 		records=r.options.datapath;
 		records+=r;
-
 
 		InfoResource Payload( r, records );
 		const int payloadstatus( Payload );

@@ -49,7 +49,6 @@ using namespace StockMarket;
 
 namespace InfoMarketData
 {
-
 	pair< unsigned char*,size_t > MarketData::operator()( const string& payload ) 
 	{	
 		pair< unsigned char*,size_t > empty( nullptr, 0 );
