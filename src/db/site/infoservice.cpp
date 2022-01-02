@@ -94,10 +94,12 @@ namespace InfoKruncher
 		const size_t Len( get.str().size() );
 
 		InfoMarketData::MarketData markets( respond.options );
-		pair< unsigned char*,size_t > result( markets( get.str() ) );
+		const string& s( get.str() );
+		pair< unsigned char*,size_t > result( markets( s ) );
 
 		if ( result.second )
 			DefaultResponse.Set( result.first, result.second );
+
 	}
 
 	void InfoSite::Throttle( const InfoKruncher::SocketProcessOptions& svcoptions )

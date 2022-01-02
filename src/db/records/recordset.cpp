@@ -43,9 +43,6 @@ using namespace std;
 using namespace BdbSpace;
 using namespace DbRecords;
 
-//#include <infokruncher.h>
-//#include <infosite.h>
-
 #include <Ticker.h>
 using namespace StockMarket;
 #include <inforecords.h>
@@ -65,48 +62,24 @@ namespace InfoMarketData
 		const string method( parts[ J++ ] );
 		const string url( parts[ J++ ] );
 		const string ticker( parts[ J++ ] );
-		const string name( parts[ J++ ] );
-		const string market( parts[ J++ ] );
-		const string locale( parts[ J++ ] );
-		const string primary_exchange( parts[ J++ ] );
-		const string type( parts[ J++ ] );
-		const string active( parts[ J++ ] );
-		const string currency_name( parts[ J++ ] );
-		const string cik( parts[ J++ ] );
-		const string composite_figi( parts[ J++ ] );
-		const string share_class_figi( parts[ J++ ] );
-		const string last_updated( parts[ J++ ] );
-		cout << 
-			"method:" << method  << fence << "url:" << url  << fence << "ticker:" << ticker  << fence << "name:" << name  << fence << 
-			"market:" << market  << fence << "locale:" << locale  << fence << "primary_exchange:" << primary_exchange  << fence << "type:" << type  << fence << 
-			"active:" << active  << fence << "currency_name:" << currency_name  << fence << "cik:" << cik  << fence << "composite_figi:" << composite_figi  << fence << 
-			"share_class_figi:" << share_class_figi  << fence << "last_updated:" << last_updated  << fence << endl;
 
+		MarketData& me( *this );
+		me=parts;
 
+		//cout << record << endl;
 
-		memset( &record, 0, sizeof( record ) );
-		SetName( name );
-		SetMarket( market );
-		SetLocale( locale );
-		SetPrimaryExchange( primary_exchange );
-		SetType( type );
-		SetActive( active );
-		SetCurrencyName( currency_name );
-		SetPrimaryCIK( cik );
-		SetCompositeFigi( composite_figi );
-		SetShareClassFigi( share_class_figi );
-		SetLastUpdatedUTC( last_updated );
-		DbRecords::RecordUpdater<StockMarket::TickerBase> R( ticker, record, "./bdb/" );
-		const unsigned long nupdates( R );
+		DbRecords::RecordUpdater<StockMarket::TickerBase> Update( ticker, record, "./bdb/" );
+		const unsigned long nupdates( Update );
+
 		if ( nupdates > 1 ) throw string( "ERROR - Multiple records" );
 		if ( nupdates == 0 )
 		{
 			cerr << "Cannot update, creating" << endl;
-			DbRecords::RecordCreator<StockMarket::TickerBase> R( ticker, record, "./bdb/" );
-			const unsigned long status( R );
+			DbRecords::RecordCreator<StockMarket::TickerBase> Create( ticker, record, "./bdb/" );
+			const unsigned long status( Create );
 			if ( status ) 
 			{
-				cerr << "Cannot create" << endl;
+				cerr << red << "Cannot create" << normal << endl;
 				stringstream ssr;
 				ssr << "ERROR" << fence << payload;
 				const size_t Len( ssr.str().size() );
@@ -116,7 +89,11 @@ namespace InfoMarketData
 				memcpy( (char*) data, ssr.str().c_str(), Len );
 				pair< unsigned char*,size_t > ret( data, Len );
 				return ret;
+			} else {
+				cerr << blue << "Created " << ticker << normal << endl;
 			}
+		} else {
+			cerr << blue << "Updated " << nupdates << " " << ticker << normal << endl;
 		}
 
 		stringstream ssr;
