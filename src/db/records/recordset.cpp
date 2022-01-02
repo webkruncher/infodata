@@ -67,14 +67,14 @@ namespace InfoMarketData
 
 		//cout << record << endl;
 
-		DbRecords::RecordUpdater<StockMarket::TickerBase> Update( ticker, record, "./bdb/" );
+		DbRecords::RecordUpdater<StockMarket::TickerBase> Update( ticker, record, options.datapath );
 		const unsigned long nupdates( Update );
 
 		if ( nupdates > 1 ) throw string( "ERROR - Multiple records" );
 		if ( nupdates == 0 )
 		{
 			cerr << "Cannot update, creating" << endl;
-			DbRecords::RecordCreator<StockMarket::TickerBase> Create( ticker, record, "./bdb/" );
+			DbRecords::RecordCreator<StockMarket::TickerBase> Create( ticker, record, options.datapath );
 			const unsigned long createstatus( Create );
 			if ( createstatus ) 
 			{
