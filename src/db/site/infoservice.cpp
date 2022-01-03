@@ -47,7 +47,15 @@ namespace InfoKruncher
 
 	void InfoSite::LoadResponse( InfoKruncher::Responder& r, InfoKruncher::RestResponse& Responder )
 	{
-		//cerr << teal << r.method << " " << r.resource << normal << endl;
+		const string ip( dotted( r.ipaddr ) );
+		if ( ip != "127.0.0.1" )
+		{
+			cerr << red << r.ipaddr << fence << r.method << fence << r.resource << normal << endl;
+			const string uauth( "UnAuthorized" );
+			Responder( 401, "text/plain", ServiceName, false, "", "", uauth );
+			return;
+		}
+		cerr << teal << r.ipaddr << fence << r.method << fence << r.resource << normal << endl;
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
 		records=r.options.datapath;
 		records+=r;
@@ -66,6 +74,12 @@ namespace InfoKruncher
 				Responder( 414, Payload.contenttype, ServiceName, false, "", "", Payload.payload.str() );
 				return ;
 			}
+
+
+		const string uauth( "WIP" );
+		Responder( 200, "text/plain", ServiceName, false, "", "", uauth );
+	
+		return;	
 
 		InfoDb::Site::Roles roles( r.options.scheme, Payload.uri, r.headers, r.ipaddr, r.options.text );	
 		InfoAuth::Authorization auth( Payload.payload.str(), Payload.contenttype, roles );
