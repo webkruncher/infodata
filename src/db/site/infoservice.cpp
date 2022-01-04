@@ -78,14 +78,14 @@ namespace InfoKruncher
 
 		if ( r.method == "GET" ) 
 		{
-			const string uauth( r.resource );
-			Responder( 200, "text/plain", ServiceName, false, "", "", uauth );
-		} else {
-			Responder( 200, "text/plain", ServiceName, false, "", "", "" );
-		}
-	
-		return;	
+			cerr << r.resource << endl;
+			stringstream ss;
+			DbRecords::RecordPrinter<StockMarket::TickerBase>( ss, r.resource, r.options.datapath );
+			Responder( 200, "text/plain", ServiceName, false, "", "", ss.str() );
+			return;
+		} 
 
+		Responder( 200, "text/plain", ServiceName, false, "", "", "" );
 	}
 
 	bool InfoSite::ProcessForm( const string formpath, stringmap& formdata )
