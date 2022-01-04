@@ -76,8 +76,13 @@ namespace InfoKruncher
 			}
 
 
-		const string uauth( "WIP" );
-		Responder( 200, "text/plain", ServiceName, false, "", "", uauth );
+		if ( r.method == "GET" ) 
+		{
+			const string uauth( r.resource );
+			Responder( 200, "text/plain", ServiceName, false, "", "", uauth );
+		} else {
+			Responder( 200, "text/plain", ServiceName, false, "", "", "" );
+		}
 	
 		return;	
 
