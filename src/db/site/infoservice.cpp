@@ -78,7 +78,7 @@ namespace InfoKruncher
 
 		if ( r.method == "GET" ) 
 		{
-			cerr << r.resource << endl;
+			cerr << "Search for:" << r.resource << endl;
 			stringstream ss;
 			DbRecords::RecordPrinter<StockMarket::TickerBase>( ss, r.resource, r.options.datapath );
 			Responder( 200, "text/plain", ServiceName, false, "", "", ss.str() );
