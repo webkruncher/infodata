@@ -94,6 +94,12 @@ namespace InfoKruncher
 			if ( qsize > 1 ) query=qparts[ 1 ];
 			stringstream ss;
 
+			if ( what == "/tickerlist" )
+			{
+				DbRecords::KeyLister<StockMarket::TickerBase>( ss, query.c_str(), r.options.datapath );
+				Responder( 200, "text/plain", ServiceName, false, "", "", ss.str() );
+				return;
+			}
 
 			if ( what == "/ticker" )
 			{
