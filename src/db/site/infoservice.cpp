@@ -81,14 +81,6 @@ namespace InfoKruncher
 	
 		return;	
 
-		InfoDb::Site::Roles roles( r.options.scheme, Payload.uri, r.headers, r.ipaddr, r.options.text );	
-		InfoAuth::Authorization auth( Payload.payload.str(), Payload.contenttype, roles );
-		const int AuthorizationStatus( auth );
-
-		Responder( AuthorizationStatus, Payload.contenttype, ServiceName, records.IsNewCookie(), records.CookieName(), records.Cookie(), auth );
-		//Log( VERB_ALWAYS, "InfoSite::LoadPayload", Payload.uri );
-
-		return ;
 	}
 
 	bool InfoSite::ProcessForm( const string formpath, stringmap& formdata )
