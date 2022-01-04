@@ -55,7 +55,7 @@ namespace InfoKruncher
 			Responder( 401, "text/plain", ServiceName, false, "", "", uauth );
 			return;
 		}
-		cerr << teal << r.ipaddr << fence << r.method << fence << r.resource << normal << endl;
+		//cerr << teal << r.ipaddr << fence << r.method << fence << r.resource << normal << endl;
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
 		records=r.options.datapath;
 		records+=r;
@@ -78,11 +78,33 @@ namespace InfoKruncher
 
 		if ( r.method == "GET" ) 
 		{
-			cerr << "Search for:" << r.resource << endl;
+			//cerr << "Search for:" << r.resource << endl;
+			stringvector qparts;
+			qparts.split( r.resource, "?" );
+			if ( qparts.empty() )
+			{
+				const string estr( "No resource specified" );
+				Responder( 404, "text/plain", ServiceName, false, "", "", estr );
+				return;
+			}
+			const string what( qparts[ 0 ] );
+			const size_t qsize( qparts.size() );
+
+			string query;
+			if ( qsize > 1 ) query=qparts[ 1 ];
 			stringstream ss;
-			DbRecords::RecordPrinter<StockMarket::TickerBase>( ss, r.resource, r.options.datapath );
-			Responder( 200, "text/plain", ServiceName, false, "", "", ss.str() );
-			return;
+
+
+			if ( what == "/ticker" )
+			{
+				DbRecords::RecordPrinter<StockMarket::TickerBase>( ss, query.c_str(), r.options.datapath );
+				Responder( 200, "text/plain", ServiceName, false, "", "", ss.str() );
+				return;
+			}
+			{
+				Responder( 404, "text/plain", ServiceName, false, "", "", what );
+				return;
+			}
 		} 
 
 		Responder( 200, "text/plain", ServiceName, false, "", "", "" );
