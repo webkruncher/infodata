@@ -78,6 +78,7 @@ namespace InfoKruncher
 
 		if ( r.method == "GET" ) 
 		{
+			cerr << r.method << " " << r.resource << endl;
 			//cerr << "Search for:" << r.resource << endl;
 			stringvector qparts;
 			qparts.split( r.resource, "?" );
@@ -93,6 +94,7 @@ namespace InfoKruncher
 			string query;
 			if ( qsize > 1 ) query=qparts[ 1 ];
 			stringstream ss;
+
 
 			if ( what == "/tickerlist" )
 			{
@@ -131,6 +133,7 @@ namespace InfoKruncher
 
 		stringstream get;
 		get << fence << respond.method << fence << respond.resource << payload;
+		cerr << get.str() << endl;
 		const size_t Len( get.str().size() );
 
 		InfoMarketData::MarketData markets( respond.options );
