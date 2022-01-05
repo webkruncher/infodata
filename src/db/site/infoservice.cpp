@@ -96,6 +96,7 @@ namespace InfoKruncher
 
 			if ( what == "/tickerlist" )
 			{
+				Responder.SetChunked( 4096 );
 				DbRecords::KeyLister<StockMarket::TickerBase>( ss, query.c_str(), r.options.datapath );
 				Responder( 200, "text/plain", ServiceName, false, "", "", ss.str() );
 				return;
