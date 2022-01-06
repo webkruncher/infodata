@@ -95,6 +95,7 @@ namespace InfoKruncher
 			if ( qsize > 1 ) query=qparts[ 1 ];
 			stringstream ss;
 
+			cerr << teal << "Get->DB:" << what << normal << endl;
 
 			if ( what == "/tickerlist" )
 			{
@@ -104,7 +105,7 @@ namespace InfoKruncher
 				return;
 			}
 
-			if ( what == "/ticker" )
+			if ( what == "/tickers" )
 			{
 				DbRecords::RecordPrinter<StockMarket::TickerBase>( ss, query.c_str(), r.options.datapath );
 				Responder( 200, "text/plain", ServiceName, false, "", "", ss.str() );
@@ -133,7 +134,7 @@ namespace InfoKruncher
 
 		stringstream get;
 		get << fence << respond.method << fence << respond.resource << payload;
-		cerr << get.str() << endl;
+		cerr << teal << "Put->DB:" << get.str() << normal << endl;
 		const size_t Len( get.str().size() );
 
 		InfoMarketData::MarketData markets( respond.options );
