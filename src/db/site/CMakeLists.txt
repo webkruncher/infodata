@@ -8,7 +8,7 @@ Headers(
 	krunchercore::tracer
 	exexml
 	datakruncher
-	datakruncher::markets
+	tradekruncher::db/markets
 	informationkruncher
 )
 
@@ -19,7 +19,7 @@ LibraryPaths(
 	krunchercore::ut/Directory/
 	krunchercore::ut/
 	datafactory::data/
-	datakruncher::market/
+	tradekruncher::markets/
 	informationkruncher::socks/
 )
 
@@ -27,7 +27,7 @@ LibraryPaths(
 Libraries(
 	krunchertrace
 	krunchercore
-	marketdata
+	#marketdata
 	informationkruncher
 )
 

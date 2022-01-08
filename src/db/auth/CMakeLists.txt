@@ -28,7 +28,7 @@ LibraryPaths(
 Libraries(
 	krunchertrace
 	krunchercore
-	marketdata
+	#marketdata
 	informationkruncher
 )
 
