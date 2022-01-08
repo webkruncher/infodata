@@ -32,8 +32,8 @@
 #include <site/infodataservice.h>
 #include <exexml.h>
 #include <site/PostProcessor.h>
-#include <Ticker.h>
 #include <records/inforecords.h>
+#include <RestInterface.h>
 
 
 namespace InfoKruncher
@@ -46,14 +46,14 @@ namespace InfoKruncher
 		operator int () { return 0; }
 	};
 
-	void InfoSite::LoadResponse( InfoKruncher::Responder& r, InfoKruncher::RestResponse& Responder )
+	void InfoSite::LoadResponse( InfoKruncher::Responder& r, InfoKruncher::RestResponse& response )
 	{
 		const string ip( dotted( r.ipaddr ) );
 		if ( ip != "127.0.0.1" )
 		{
 			cerr << red << r.ipaddr << fence << r.method << fence << r.resource << normal << endl;
 			const string uauth( "UnAuthorized" );
-			Responder( 401, "text/plain", ServiceName, false, "", "", uauth );
+			response( 401, "text/plain", ServiceName, false, "", "", uauth );
 			return;
 		}
 		//cerr << teal << r.ipaddr << fence << r.method << fence << r.resource << normal << endl;
@@ -65,60 +65,20 @@ namespace InfoKruncher
 		const int payloadstatus( Payload );
 		if ( payloadstatus ) 
 		{
-			Responder( payloadstatus, Payload.contenttype, ServiceName, false, "", "", Payload.payload.str() );
+			response( payloadstatus, Payload.contenttype, ServiceName, false, "", "", Payload.payload.str() );
 			return ;
 		}
 
 		if ( ( r.method == "POST" ) || ( r.method == "PUT" ) || ( r.method == "PATCH" ) )
 			if ( ( r.ContentLength < 0 ) || ( r.ContentLength > 4096 ) )
 			{
-				Responder( 414, Payload.contenttype, ServiceName, false, "", "", Payload.payload.str() );
+				response( 414, Payload.contenttype, ServiceName, false, "", "", Payload.payload.str() );
 				return ;
 			}
 
+		if ( r.method == "GET" ) DataFace::LoadResponse( r, ServiceName, response );
+		else response( 200, "text/plain", ServiceName, false, "", "", "" );
 
-		if ( r.method == "GET" ) 
-		{
-			cerr << r.method << " " << r.resource << endl;
-			//cerr << "Search for:" << r.resource << endl;
-			stringvector qparts;
-			qparts.split( r.resource, "?" );
-			if ( qparts.empty() )
-			{
-				const string estr( "No resource specified" );
-				Responder( 404, "text/plain", ServiceName, false, "", "", estr );
-				return;
-			}
-			const string what( qparts[ 0 ] );
-			const size_t qsize( qparts.size() );
-
-			string query;
-			if ( qsize > 1 ) query=qparts[ 1 ];
-			stringstream ss;
-
-			cerr << teal << "Get->DB:" << what << normal << endl;
-
-			if ( what == "/markets/tickerlist" )
-			{
-				Responder.SetChunked( 4096 );
-				DbRecords::KeyLister<StockMarket::TickerBase>( ss, query.c_str(), r.options.datapath );
-				Responder( 200, "text/plain", ServiceName, false, "", "", ss.str() );
-				return;
-			}
-
-			if ( what == "/markets/tickers" )
-			{
-				DbRecords::RecordPrinter<StockMarket::TickerBase>( ss, query.c_str(), r.options.datapath );
-				Responder( 200, "text/plain", ServiceName, false, "", "", ss.str() );
-				return;
-			}
-			{
-				Responder( 404, "text/plain", ServiceName, false, "", "", what );
-				return;
-			}
-		} 
-
-		Responder( 200, "text/plain", ServiceName, false, "", "", "" );
 	}
 
 	bool InfoSite::ProcessForm( const string formpath, stringmap& formdata )
@@ -128,43 +88,11 @@ namespace InfoKruncher
 		return true;
 	}
 
-	void InfoSite::PostProcessing( InfoKruncher::Responder& respond, InfoKruncher::RestResponse& DefaultResponse, const binarystring& PostedContent ) 
-	{
-		string payload;
-		payload.assign( (char*) PostedContent.data(), PostedContent.size() );
-
-		stringstream get;
-		get << fence << respond.method << fence << respond.resource << payload;
-		cerr << yellow << "Put->DB:" << get.str() << normal << endl;
-		const size_t Len( get.str().size() );
-
-		RestData::Binding<StockMarket::TickerBase> tmarkets( respond.options );
-		RestData::BindingBase& markets( tmarkets );
-		const string& s( get.str() );
-		pair< unsigned char*,size_t > result( markets( s ) );
-
-		DefaultResponse.SetStatus( markets );
-
-		if ( result.second )
-			DefaultResponse.Set( result.first, result.second );
-
-	}
+	void InfoSite::PostProcessing
+		( InfoKruncher::Responder& respond, InfoKruncher::RestResponse& response, const binarystring& PostedContent ) 
+			{ DataFace::PostProcessing( respond, ServiceName, response, PostedContent ); }
 
 	void InfoSite::Throttle( const InfoKruncher::SocketProcessOptions& svcoptions )
 		{ usleep( (rand()%100)+20000 ); }
 } // InfoKruncher
-
-#if 0
-namespace InfoDataService
-{
-	void ShowRecords( const KruncherTools::Args& args, const InfoKruncher::SocketProcessOptions& options )
-	{
-		BdbSpace::DbMetaData meta( args );
-		if ( ! meta ) return ;
-		cerr << "#" << fence << meta.TableName() << fence << meta.Key() << fence << endl;
-		DbRecords::RecordPrinter<Visitors::VisitorData>( cout, meta.Key(), options.datapath );
-	}
-
-} // InfoDataService
-#endif
 

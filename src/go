@@ -16,7 +16,7 @@ if [ "${1}" == "-nobuild" ]; then
 	shift
 else
 	echo -ne "\033[32mBuilding infodata\033[0m\n"
-	[ -d ../src.build ] && sudo rm -rf ../src.build
+	#[ -d ../src.build ] && sudo rm -rf ../src.build
 	Build
 fi
 

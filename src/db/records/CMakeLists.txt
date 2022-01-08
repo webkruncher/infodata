@@ -7,7 +7,6 @@ Headers(
 	krunchercore::tracer
 	exexml
 	datakruncher
-	tradekruncher::db/markets
 	informationkruncher
 )
 
@@ -18,7 +17,6 @@ LibraryPaths(
 	krunchercore::ut/Directory/
 	krunchercore::ut/
 	datafactory::data/
-	tradekruncher::markets/
 	informationkruncher::socks/
 )
 
@@ -31,7 +29,6 @@ Libraries(
 
 
 
-#get_filename_component(INCLUDES_PATH ../include/db/ REALPATH) 
 
 set (LIBSRC
 	recordset.cpp

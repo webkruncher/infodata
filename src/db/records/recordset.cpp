@@ -39,13 +39,8 @@ using namespace std;
 #include <recordset.h>
 #include <sys/stat.h>
 
-
 using namespace BdbSpace;
 using namespace DbRecords;
-
-//#include <Ticker.h>
-//using namespace StockMarket;
-
 #include <inforecords.h>
 
 namespace RestData

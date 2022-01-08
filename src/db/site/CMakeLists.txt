@@ -1,15 +1,10 @@
 
 Banner()
 
-Headers(
-	krunchercore
-	krunchercore::tracer
-	exexml
-	datakruncher
-	tradekruncher::db/markets
-	informationkruncher
-)
 
+Headers(
+	${DataHeaders}
+)
 
 LibraryPaths(
 	krunchercore::global/tracer/
@@ -17,7 +12,6 @@ LibraryPaths(
 	krunchercore::ut/Directory/
 	krunchercore::ut/
 	datafactory::data/
-	tradekruncher::markets/
 	informationkruncher::socks/
 )
 
