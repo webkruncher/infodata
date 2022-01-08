@@ -91,12 +91,6 @@ int main( int argc, char** argv )
 		{
 			InfoKruncher::Service<InfoKruncher::DbSite>& site( sites[ c ] );
 			const InfoKruncher::SocketProcessOptions& svcoptions( workerlist[ c ] );
-			if ( options.find( "--show" ) != options.end() )
-			{
-				InfoDataService::ShowRecords( options, svcoptions );
-				TERMINATE=true;
-				continue;
-			}
 			site.ForkAndServe( svcoptions);
 		}
 		while ( !TERMINATE ) usleep( (rand()%100000)+100000 );

@@ -48,10 +48,9 @@ using namespace StockMarket;
 
 #include <inforecords.h>
 
-namespace InfoMarketData
+namespace RestData
 {
-
-	pair< unsigned char*,size_t > MarketBase::operator()( const string& payload ) 
+	pair< unsigned char*,size_t > BindingBase::operator()( const string& payload ) 
 	{	
 		pair< unsigned char*,size_t > empty( nullptr, 0 );
 		stringvector parts;
@@ -64,9 +63,9 @@ namespace InfoMarketData
 		const string url( parts[ J++ ] );
 		const string what( parts[ J++ ] );
 
-		MarketBase& me( *this );
+		BindingBase& me( *this );
 		return me( method, what, parts );
 	}
 
-} // namespace InfoMarketData
+} // namespace RestData
 

@@ -174,7 +174,7 @@ namespace InfoDataService
 		return 0;
 	}
 
-	void ShowRecords( const KruncherTools::Args& args, const InfoKruncher::SocketProcessOptions& options );
+	//void ShowRecords( const KruncherTools::Args& args, const InfoKruncher::SocketProcessOptions& options );
 
 } // InfoDataService
 

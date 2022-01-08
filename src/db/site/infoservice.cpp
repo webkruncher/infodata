@@ -98,7 +98,7 @@ namespace InfoKruncher
 
 			cerr << teal << "Get->DB:" << what << normal << endl;
 
-			if ( what == "/tickerlist" )
+			if ( what == "/markets/tickerlist" )
 			{
 				Responder.SetChunked( 4096 );
 				DbRecords::KeyLister<StockMarket::TickerBase>( ss, query.c_str(), r.options.datapath );
@@ -106,7 +106,7 @@ namespace InfoKruncher
 				return;
 			}
 
-			if ( what == "/tickers" )
+			if ( what == "/markets/tickers" )
 			{
 				DbRecords::RecordPrinter<StockMarket::TickerBase>( ss, query.c_str(), r.options.datapath );
 				Responder( 200, "text/plain", ServiceName, false, "", "", ss.str() );
@@ -138,8 +138,8 @@ namespace InfoKruncher
 		cerr << yellow << "Put->DB:" << get.str() << normal << endl;
 		const size_t Len( get.str().size() );
 
-		InfoMarketData::MarketData<StockMarket::TickerBase> tmarkets( respond.options );
-		InfoMarketData::MarketBase& markets( tmarkets );
+		RestData::Binding<StockMarket::TickerBase> tmarkets( respond.options );
+		RestData::BindingBase& markets( tmarkets );
 		const string& s( get.str() );
 		pair< unsigned char*,size_t > result( markets( s ) );
 
@@ -154,9 +154,9 @@ namespace InfoKruncher
 		{ usleep( (rand()%100)+20000 ); }
 } // InfoKruncher
 
+#if 0
 namespace InfoDataService
 {
-
 	void ShowRecords( const KruncherTools::Args& args, const InfoKruncher::SocketProcessOptions& options )
 	{
 		BdbSpace::DbMetaData meta( args );
@@ -166,4 +166,5 @@ namespace InfoDataService
 	}
 
 } // InfoDataService
+#endif
 

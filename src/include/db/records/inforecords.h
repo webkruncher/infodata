@@ -29,12 +29,11 @@
 #define INFO_RECORDS_H
 #include <infokruncher.h>
 #include <infosite.h>
-#include <Ticker.h>
-namespace InfoMarketData
+namespace RestData
 {
-	struct MarketBase
+	struct BindingBase
 	{
-		MarketBase( const InfoKruncher::SocketProcessOptions& _options ) : options( _options ), Status( 0 ) {}
+		BindingBase( const InfoKruncher::SocketProcessOptions& _options ) : options( _options ), Status( 0 ) {}
 		pair< unsigned char*,size_t > operator()( const string& payload );
 		operator unsigned long () { return Status; }
 		private:
@@ -45,15 +44,12 @@ namespace InfoMarketData
 	};
 
 	template< typename What >
-		struct MarketData : MarketBase, What
+		struct Binding : BindingBase, What
 	{
-		MarketData( const InfoKruncher::SocketProcessOptions& _options ) : MarketBase( _options ) {}
+		Binding( const InfoKruncher::SocketProcessOptions& _options ) : BindingBase( _options ) {}
 		private:
 		pair< unsigned char*,size_t > operator()( const string method, const string what, const stringvector& sv )
 		{
-
-			//cout << record << endl;
-
 			What::operator=( sv );
 
 			DbRecords::RecordUpdater<What> Update( what, What::record, options.datapath );
@@ -88,5 +84,5 @@ namespace InfoMarketData
 			return ret;
 		}
 	};
-} //InfoMarketData
+} //RestData
 #endif // INFO_RECORDS_H
