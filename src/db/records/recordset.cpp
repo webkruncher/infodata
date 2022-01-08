@@ -43,8 +43,8 @@ using namespace std;
 using namespace BdbSpace;
 using namespace DbRecords;
 
-#include <Ticker.h>
-using namespace StockMarket;
+//#include <Ticker.h>
+//using namespace StockMarket;
 
 #include <inforecords.h>
 
