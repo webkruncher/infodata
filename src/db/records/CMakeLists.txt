@@ -1,4 +1,5 @@
 
+Banner()
 
 
 Headers(
@@ -25,7 +26,6 @@ LibraryPaths(
 Libraries(
 	krunchertrace
 	krunchercore
-	#marketdata
 	informationkruncher
 )
 

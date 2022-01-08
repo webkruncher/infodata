@@ -1,9 +1,5 @@
 
-message("Building infodata/db/auth")
-
-
-
-
+Banner()
 
 Headers(
 	krunchercore
