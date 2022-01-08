@@ -45,11 +45,13 @@ using namespace DbRecords;
 
 #include <Ticker.h>
 using namespace StockMarket;
+
 #include <inforecords.h>
 
 namespace InfoMarketData
 {
-	pair< unsigned char*,size_t > MarketData::operator()( const string& payload ) 
+
+	pair< unsigned char*,size_t > MarketBase::operator()( const string& payload ) 
 	{	
 		pair< unsigned char*,size_t > empty( nullptr, 0 );
 		stringvector parts;
@@ -60,43 +62,10 @@ namespace InfoMarketData
 		int J( 1 );
 		const string method( parts[ J++ ] );
 		const string url( parts[ J++ ] );
-		const string ticker( parts[ J++ ] );
+		const string what( parts[ J++ ] );
 
-		MarketData& me( *this );
-		me=parts;
-
-		//cout << record << endl;
-
-		DbRecords::RecordUpdater<StockMarket::TickerBase> Update( ticker, record, options.datapath );
-		const unsigned long nupdates( Update );
-
-		if ( nupdates > 1 ) throw string( "ERROR - Multiple records" );
-		if ( nupdates == 0 )
-		{
-			cerr << "Cannot update, creating" << endl;
-			DbRecords::RecordCreator<StockMarket::TickerBase> Create( ticker, record, options.datapath );
-			const unsigned long createstatus( Create );
-			if ( createstatus ) 
-			{
-				cerr << red << "Cannot create" << normal << endl;
-			} else {
-				cerr << blue << "Created " << ticker << normal << endl;
-				Status=200;
-			}
-		} else {
-			cerr << blue << "Updated " << nupdates << " " << ticker << normal << endl;
-			Status=200;
-		}
-
-		stringstream ssr;
-		ssr << payload;
-		const size_t Len( ssr.str().size() );
-		// TBD: Consider placement new / delete, Find ~/Info malloc
-		unsigned char* data=(unsigned char*) malloc( Len );
-		memset( data, 0, Len );
-		memcpy( (char*) data, ssr.str().c_str(), Len );
-		pair< unsigned char*,size_t > ret( data, Len );
-		return ret;
+		MarketBase& me( *this );
+		return me( method, what, parts );
 	}
 
 } // namespace InfoMarketData

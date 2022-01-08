@@ -32,6 +32,7 @@
 #include <site/infodataservice.h>
 #include <exexml.h>
 #include <site/PostProcessor.h>
+#include <Ticker.h>
 #include <records/inforecords.h>
 
 
@@ -134,10 +135,11 @@ namespace InfoKruncher
 
 		stringstream get;
 		get << fence << respond.method << fence << respond.resource << payload;
-		cerr << teal << "Put->DB:" << get.str() << normal << endl;
+		cerr << yellow << "Put->DB:" << get.str() << normal << endl;
 		const size_t Len( get.str().size() );
 
-		InfoMarketData::MarketData markets( respond.options );
+		InfoMarketData::MarketData<StockMarket::TickerBase> tmarkets( respond.options );
+		InfoMarketData::MarketBase& markets( tmarkets );
 		const string& s( get.str() );
 		pair< unsigned char*,size_t > result( markets( s ) );
 

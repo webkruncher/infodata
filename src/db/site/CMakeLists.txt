@@ -8,6 +8,7 @@ Headers(
 	krunchercore::tracer
 	exexml
 	datakruncher
+	datakruncher::markets
 	informationkruncher
 )
 
