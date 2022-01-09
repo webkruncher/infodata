@@ -53,7 +53,12 @@ namespace InfoKruncher
 	{
 		RunService( svcoptions );
 	}
-	template<> void InfoKruncher::Service< DbSite >::Terminate() { subprocesses.Terminate(); }
+	template<> void InfoKruncher::Service< DbSite >::Terminate() 
+	{ 
+		cerr << "x"; cerr.flush();
+		subprocesses.Terminate(); 
+		cerr << "-"; cerr.flush();
+	}
 } // InfoKruncher
 
 
@@ -93,8 +98,15 @@ int main( int argc, char** argv )
 			const InfoKruncher::SocketProcessOptions& svcoptions( workerlist[ c ] );
 			site.ForkAndServe( svcoptions);
 		}
-		while ( !TERMINATE ) usleep( (rand()%100000)+100000 );
+
+		while ( !TERMINATE ) 
+		{
+			//usleep( (rand()%100000)+100000 );
+			sleep( 1 );
+			cerr << "."; cerr.flush();
+		}
 		Log( "infodbservice is exiting" );
+
 		for ( size_t t=0; t < nSites; t++ ) sites[ t ].Terminate();
 	}
 	catch( const exception& e ) { ssexcept<<e.what(); }
@@ -106,6 +118,8 @@ int main( int argc, char** argv )
 		cerr << red << ssexcept.str() << normal << endl;
 		Log( VERB_ALWAYS, "dbmain", ssexcept.str() );
 	}
+
+	cerr << red << "main exiting" << normal << endl;
 
 	return 0;
 }

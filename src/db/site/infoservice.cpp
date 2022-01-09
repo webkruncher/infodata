@@ -39,10 +39,13 @@
 namespace InfoKruncher
 {
 	const string ServiceName( "InfoData" );
+
 	struct InfoResource : InfoDataService::DataResource
 	{
 		InfoResource( const InfoKruncher::Responder& _responder, Visitors::VisitorBase& _visitor  ) 
-			: DataResource( _responder,  _visitor ) {}
+			: DataResource( _responder,  _visitor ) 
+		{
+		}
 		operator int () { return 0; }
 	};
 
@@ -56,7 +59,16 @@ namespace InfoKruncher
 			response( 401, "text/plain", ServiceName, false, "", "", uauth );
 			return;
 		}
+		if ( r.resource == "/exit" )
+		{
+			cerr << red << "Exiting" << normal << endl;
+			Log( VERB_ALWAYS, "infoservice", "Raising signal" );
+			response( 200, "text/plain", ServiceName, false, "", "", "Server is exiting" );
+			kill( 0, SIGINT );
+			return;
+		}
 		//cerr << teal << r.ipaddr << fence << r.method << fence << r.resource << normal << endl;
+		DataFace::Allocate( r.options.datapath );
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
 		records=r.options.datapath;
 		records+=r;
