@@ -51,13 +51,13 @@ namespace InfoKruncher
 	template<> 
 		void InfoKruncher::Service< DbSite >::ForkAndServe( const SocketProcessOptions& svcoptions )
 	{
+		InfoDataService::SetupDB( svcoptions.datapath );
 		RunService( svcoptions );
 	}
 	template<> void InfoKruncher::Service< DbSite >::Terminate() 
 	{ 
-		cerr << "x"; cerr.flush();
 		subprocesses.Terminate(); 
-		cerr << "-"; cerr.flush();
+		InfoDataService::TeardownDB();
 	}
 } // InfoKruncher
 
@@ -75,6 +75,7 @@ int main( int argc, char** argv )
 		InfoKruncher::Options< InfoKruncher::ServiceList > options( argc, argv );
 		if ( ! options ) throw string( "Invalid options" );
 		if ( options.find( "-d" ) == options.end() ) Initialize();
+		else SetSignals();
 
 		const InfoKruncher::ServiceList& workerlist( options.workerlist );
 
@@ -90,22 +91,18 @@ int main( int argc, char** argv )
 		cerr << yellow << "krestdb is starting up" << normal << endl;
 		KruncherTools::Daemonizer daemon( options.daemonize, "DbSite" );
 
+
 		InfoKruncher::Service<InfoKruncher::DbSite> sites[ nSites ];
 
 		for ( size_t c=0;  c < nSites; c++ )
 		{
 			InfoKruncher::Service<InfoKruncher::DbSite>& site( sites[ c ] );
 			const InfoKruncher::SocketProcessOptions& svcoptions( workerlist[ c ] );
-			site.ForkAndServe( svcoptions);
+			site.ForkAndServe( svcoptions );
 		}
 
-		while ( !TERMINATE ) 
-		{
-			//usleep( (rand()%100000)+100000 );
-			sleep( 1 );
-			cerr << "."; cerr.flush();
-		}
-		Log( "infodbservice is exiting" );
+		while ( !TERMINATE ) { usleep( (rand()%100000)+100000 ); }
+		Log( VERB_ALWAYS, "main", "infodbservice is terminating child processes" );
 
 		for ( size_t t=0; t < nSites; t++ ) sites[ t ].Terminate();
 	}
@@ -119,7 +116,7 @@ int main( int argc, char** argv )
 		Log( VERB_ALWAYS, "dbmain", ssexcept.str() );
 	}
 
-	cerr << red << "main exiting" << normal << endl;
+	Log( VERB_ALWAYS, "main", "infodbservice is done" );
 
 	return 0;
 }

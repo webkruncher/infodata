@@ -64,11 +64,10 @@ namespace InfoKruncher
 			cerr << red << "Exiting" << normal << endl;
 			Log( VERB_ALWAYS, "infoservice", "Raising signal" );
 			response( 200, "text/plain", ServiceName, false, "", "", "Server is exiting" );
-			kill( 0, SIGINT );
+			kill( 0, SIGUSR1 );
 			return;
 		}
 		//cerr << teal << r.ipaddr << fence << r.method << fence << r.resource << normal << endl;
-		DataFace::Allocate( r.options.datapath );
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
 		records=r.options.datapath;
 		records+=r;
@@ -107,4 +106,17 @@ namespace InfoKruncher
 	void InfoSite::Throttle( const InfoKruncher::SocketProcessOptions& svcoptions )
 		{ usleep( (rand()%100)+20000 ); }
 } // InfoKruncher
+
+namespace InfoDataService
+{
+	void SetupDB( const string datapath )
+	{
+		DataFace::Allocate( datapath );
+	}
+
+	void TeardownDB()
+	{
+		DataFace::Release();
+	}
+} // InfoDataService
 

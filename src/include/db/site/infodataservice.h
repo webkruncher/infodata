@@ -35,6 +35,8 @@
 
 namespace InfoDataService
 {
+	void SetupDB( const string datapath );
+	void TeardownDB();
 	struct Visitor : private DbRecords::RecordSetBase, Visitors::VisitorBase
 	{
 		Visitor() : NewVisitor( false ) { }
