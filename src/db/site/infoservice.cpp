@@ -67,7 +67,7 @@ namespace InfoKruncher
 			kill( 0, SIGUSR1 );
 			return;
 		}
-		//cerr << teal << r.ipaddr << fence << r.method << fence << r.resource << normal << endl;
+		cerr << teal << r.ipaddr << fence << r.method << fence << r.resource << endl << r.headers << normal << endl;
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
 		records=r.options.datapath;
 		records+=r;
@@ -89,7 +89,6 @@ namespace InfoKruncher
 
 		if ( r.method == "GET" ) DataFace::LoadResponse( r, ServiceName, response );
 		else response( 200, "text/plain", ServiceName, false, "", "", "" );
-
 	}
 
 	bool InfoSite::ProcessForm( const string formpath, stringmap& formdata )
@@ -101,7 +100,9 @@ namespace InfoKruncher
 
 	void InfoSite::PostProcessing
 		( InfoKruncher::Responder& respond, InfoKruncher::RestResponse& response, const binarystring& PostedContent ) 
-			{ DataFace::PostProcessing( respond, ServiceName, response, PostedContent ); }
+	{
+		DataFace::PostProcessing( respond, ServiceName, response, PostedContent ); 
+	}
 
 	void InfoSite::Throttle( const InfoKruncher::SocketProcessOptions& svcoptions )
 		{ usleep( (rand()%100)+20000 ); }

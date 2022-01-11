@@ -33,23 +33,67 @@ namespace RestData
 {
 	struct BindingBase
 	{
-		BindingBase( const InfoKruncher::SocketProcessOptions& _options ) : options( _options ), Status( 0 ) {}
+		BindingBase( const InfoKruncher::SocketProcessOptions& _options, const Hyper::MimeHeaders& _headers, const string& _datapath ) 
+			: options( _options ), headers( _headers ), datapath( _datapath ), Status( 0 ) {}
 		pair< unsigned char*,size_t > operator()( const string& payload );
 		operator unsigned long () { return Status; }
 		private:
 		virtual pair< unsigned char*,size_t > operator()( const string method, const string what, const stringvector& ) = 0;
 		protected:
 		const InfoKruncher::SocketProcessOptions& options;
+		const Hyper::MimeHeaders& headers;
+		const string datapath;
 		unsigned long Status;
 	};
 
 	template< typename What >
 		struct Binding : BindingBase, What
 	{
-		Binding( const InfoKruncher::SocketProcessOptions& _options ) : BindingBase( _options ) {}
+		Binding( const InfoKruncher::SocketProcessOptions& _options, const Hyper::MimeHeaders& _headers, const string& _datapath ) 
+			: BindingBase( _options, _headers, _datapath ) {}
 		private:
+
+
+		pair< unsigned char*,size_t > Results()
+		{
+			stringstream ssr;
+			ssr << "KrestResult" << fence << What::record;
+			const size_t Len( ssr.str().size() );
+			// TBD: Consider placement new / delete, Find ~/Info malloc
+			unsigned char* data=(unsigned char*) malloc( Len );
+			memset( data, 0, Len );
+			memcpy( (char*) data, ssr.str().c_str(), Len );
+			pair< unsigned char*,size_t > ret( data, Len );
+			return ret;
+		}
+
+		pair< unsigned char*,size_t > CheckIntegrity( const string integrity, const string method, const string what, const stringvector& sv )
+		{
+			stringstream ss;
+			struct Getter : DbRecords::RecordGetter<What>
+			{
+				Getter( const string key, const string datapath, const stringvector& _sv )
+					: DbRecords::RecordGetter<What>( key, datapath ), sv( _sv ) {} 
+				virtual bool Hit( const typename What::KeyType& key, typename What::ValueType& value )
+				{
+					//cerr << "Loaded:" << blue << italic << "|" << key << "|" << value << normal << fence;
+					//cerr << "Compare:" << endl << sv << endl;
+					return false;
+				}
+				private:
+				const stringvector& sv;
+			} getter( what, datapath, sv );
+			const bool ok( !!getter );
+			return Results();
+		}
+
 		pair< unsigned char*,size_t > operator()( const string method, const string what, const stringvector& sv )
 		{
+			const string Integrity( mimevalue( headers, "integrity" ) );
+
+			if ( ! Integrity.empty() )
+				return CheckIntegrity( Integrity, method, what, sv );
+
 			What::operator=( sv );
 
 			DbRecords::RecordUpdater<What> Update( what, What::record, options.datapath );
@@ -72,17 +116,9 @@ namespace RestData
 				cerr << blue << "Updated " << nupdates << " " << what << normal << endl;
 				Status=200;
 			}
-
-			stringstream ssr;
-			ssr << "Krest" << fence << What::record;
-			const size_t Len( ssr.str().size() );
-			// TBD: Consider placement new / delete, Find ~/Info malloc
-			unsigned char* data=(unsigned char*) malloc( Len );
-			memset( data, 0, Len );
-			memcpy( (char*) data, ssr.str().c_str(), Len );
-			pair< unsigned char*,size_t > ret( data, Len );
-			return ret;
+			return Results();
 		}
 	};
 } //RestData
 #endif // INFO_RECORDS_H
+
