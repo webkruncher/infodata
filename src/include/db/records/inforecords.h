@@ -54,10 +54,16 @@ namespace RestData
 		private:
 
 
-		pair< unsigned char*,size_t > Results()
+		pair< unsigned char*,size_t > Results( const string query="", const bool integrity=false, const bool pass=false )
 		{
 			stringstream ssr;
-			ssr << "KrestResult" << fence << What::record;
+			if ( integrity )
+			{
+				ssr << fence << boolalpha << pass << fence << query << What::record; 
+			} else { 
+				ssr << "KrestResult" << fence << What::record; 
+			}
+cerr << ssr.str() << endl;
 			const size_t Len( ssr.str().size() );
 			// TBD: Consider placement new / delete, Find ~/Info malloc
 			unsigned char* data=(unsigned char*) malloc( Len );
@@ -67,53 +73,56 @@ namespace RestData
 			return ret;
 		}
 
-		pair< unsigned char*,size_t > CheckIntegrity( const string integrity, const string method, const string what, const stringvector& sv )
+		pair< unsigned char*,size_t > CheckIntegrity( const string integrity, const string method, const string query, const stringvector& sv )
 		{
 			stringstream ss;
 			struct Getter : DbRecords::RecordGetter<What>
 			{
-				Getter( const string key, const string datapath, const stringvector& _sv )
-					: DbRecords::RecordGetter<What>( key, datapath ), sv( _sv ) {} 
+				Getter( What& _record, const string key, const string datapath, const stringvector& _sv )
+					: DbRecords::RecordGetter<What>( key, datapath ), sv( _sv ), record( _record ), Same( false ) {} 
 				virtual bool Hit( const typename What::KeyType& key, typename What::ValueType& value )
 				{
 					//cerr << "Loaded:" << blue << italic << "|" << key << "|" << value << normal << fence;
 					//cerr << "Compare:" << endl << sv << endl;
-					return false;
+					Same=record( value, sv );
+					return false; // don't update
 				}
+				bool Same;
 				private:
 				const stringvector& sv;
-			} getter( what, datapath, sv );
+				What& record;
+			} getter( (*this), query, datapath, sv );
 			const bool ok( !!getter );
-			return Results();
+			return Results( query, true, getter.Same );
 		}
 
-		pair< unsigned char*,size_t > operator()( const string method, const string what, const stringvector& sv )
+		pair< unsigned char*,size_t > operator()( const string method, const string query, const stringvector& sv )
 		{
 			const string Integrity( mimevalue( headers, "integrity" ) );
 
 			if ( ! Integrity.empty() )
-				return CheckIntegrity( Integrity, method, what, sv );
+				return CheckIntegrity( Integrity, method, query, sv );
 
 			What::operator=( sv );
 
-			DbRecords::RecordUpdater<What> Update( what, What::record, options.datapath );
+			DbRecords::RecordUpdater<What> Update( query, What::record, options.datapath );
 			const unsigned long nupdates( Update );
 
 			if ( nupdates > 1 ) throw string( "ERROR - Multiple records" );
 			if ( nupdates == 0 )
 			{
 				cerr << "Cannot update, creating" << endl;
-				DbRecords::RecordCreator<What> Create( what, What::record, options.datapath );
+				DbRecords::RecordCreator<What> Create( query, What::record, options.datapath );
 				const unsigned long createstatus( Create );
 				if ( createstatus ) 
 				{
 					cerr << red << "Cannot create" << normal << endl;
 				} else {
-					cerr << blue << "Created " << what << normal << endl;
+					cerr << blue << "Created " << query << normal << endl;
 					Status=200;
 				}
 			} else {
-				cerr << blue << "Updated " << nupdates << " " << what << normal << endl;
+				cerr << blue << "Updated " << nupdates << " " << query << normal << endl;
 				Status=200;
 			}
 			return Results();
