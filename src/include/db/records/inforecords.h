@@ -52,25 +52,18 @@ namespace RestData
 			: BindingBase( _options, _headers, _datapath ) {}
 		private:
 
-		pair< unsigned char*,size_t > Results( const string query="", const bool integrity=false, const bool pass=false )
+		pair< unsigned char*,size_t > Results( const string& results )
 		{
-			stringstream ssr;
-			if ( integrity )
-			{
-				ssr << fence << boolalpha << pass << fence << query << What::record; 
-			} else { 
-				ssr << "KrestResult" << fence << Status << What::record; 
-			}
-cerr << ssr.str() << endl;
-			const size_t Len( ssr.str().size() );
+			const size_t Len( results.size() );
 			// TBD: Consider placement new / delete, Find ~/Info malloc
 			unsigned char* data=(unsigned char*) malloc( Len );
 			memset( data, 0, Len );
-			memcpy( (char*) data, ssr.str().c_str(), Len );
+			memcpy( (char*) data, results.c_str(), Len );
 			pair< unsigned char*,size_t > ret( data, Len );
 			return ret;
 		}
 
+#if 0
 		pair< unsigned char*,size_t > CheckIntegrity( const string integrity, const string method, const string query, const stringvector& sv )
 		{
 			stringstream ss;
@@ -93,7 +86,7 @@ cerr << ssr.str() << endl;
 			const bool ok( !!getter );
 			return Results( query, true, getter.Same );
 		}
-#if 0
+
 		pair< unsigned char*,size_t > operator()( const string method, const string query, const stringvector& sv )
 		{
 			const string Integrity( mimevalue( headers, "integrity" ) );
@@ -127,13 +120,36 @@ cerr << ssr.str() << endl;
 		}
 #else
 
+		struct Getter : DbRecords::RecordGetter<What>
+		{
+			Getter( What& _record, const string key, const string datapath, const stringvector& _sv )
+				: DbRecords::RecordGetter<What>( key, datapath ), sv( _sv ), record( _record ), Same( false ) {} 
+			virtual bool Hit( const typename What::KeyType& key, typename What::ValueType& value )
+			{
+				cerr << "Loaded:" << blue << italic << "|" << key << "|" << value << normal << fence;
+				cerr << "Compare:" << endl << sv << endl;
+				Same=record( value, sv );
+				return false; // don't update
+			}
+			bool Same;
+			private:
+			const stringvector& sv;
+			What& record;
+		};
+
 		pair< unsigned char*,size_t > operator()( const string method, const string table, const binarystring& PostedContent )
 		{
-			DbRecords::RecordUpdater<What> Update( options.datapath );
-			DbRecords::RecordCreator<What> Create( options.datapath );
+			const string Integrity( mimevalue( headers, "integrity" ) );
+
 			const string payload( (char*) PostedContent.data(), PostedContent.size() );
 			stringvector sv;
 			sv.split( payload, "\n" );
+
+
+			stringstream ssresults;
+			DbRecords::RecordUpdater<What> Update( options.datapath );
+			DbRecords::RecordCreator<What> Create( options.datapath );
+
 			for ( stringvector::const_iterator sit=sv.begin();sit!=sv.end();sit++)
 			{
 				const string line( *sit );
@@ -144,20 +160,31 @@ cerr << ssr.str() << endl;
 				record=fields;
 				const string query( fields[ 1 ] );
 				cerr << teal << What::record << normal << endl;
+
+
+
+				if ( ! Integrity.empty() )
+				{
+					Getter getter( (*this), query, datapath, fields );
+					const bool ok( getter );
+					ssresults << fence << query << fence << boolalpha << getter.Same << fence << endl;
+					continue;
+				}
+
+
 				const unsigned long nUpdates( Update( query, What::record ) );
-				if ( nUpdates > 1 ) Status=500;
-				if ( nUpdates == 1 ) Status=200;
+				if ( nUpdates > 1 ) ssresults << fence << query << fence << 500 << fence << endl;
+				if ( nUpdates == 1 ) ssresults << fence << query << fence << 200 << fence << endl;
 				if ( nUpdates == 1 ) cerr << "Updated " << nUpdates << endl;
 				if ( nUpdates == 0 )
 				{
 					cerr << "Creating" << endl;
 					const unsigned long Created( ! Create( query, What::record ) );
-					if ( Created ) Status=201;
-					else Status=500;
+					if ( Created ) ssresults << fence << query << fence << 201 << fence << endl; 
+					else ssresults << fence << query << fence << 501 << fence << endl;
 				} 
-				cerr << "Status:" << Status << endl;
 			}
-			return Results();
+			return Results( ssresults.str() );
 		}
 #endif
 	};
