@@ -33,23 +33,21 @@ namespace RestData
 {
 	struct BindingBase
 	{
-		BindingBase( const InfoKruncher::SocketProcessOptions& _options, const Hyper::MimeHeaders& _headers, const string& _datapath ) 
-			: options( _options ), headers( _headers ), datapath( _datapath ), Status( 0 ) {}
-		virtual pair< unsigned char*,size_t > operator()( const string method, const string what, const binarystring& ) = 0;
+		BindingBase( const InfoKruncher::SocketProcessOptions& _options )
+			: options( _options ), Status( 0 ) {}
+		virtual pair< unsigned char*,size_t > operator()( const string method, const string what, const Hyper::MimeHeaders&, const binarystring& ) = 0;
 		operator unsigned long () { return Status; }
 		private:
 		protected:
 		const InfoKruncher::SocketProcessOptions& options;
-		const Hyper::MimeHeaders& headers;
-		const string datapath;
 		unsigned long Status;
 	};
 
 	template< typename What >
 		struct Binding : BindingBase, What
 	{
-		Binding( const InfoKruncher::SocketProcessOptions& _options, const Hyper::MimeHeaders& _headers, const string& _datapath ) 
-			: BindingBase( _options, _headers, _datapath ) {}
+		Binding( const InfoKruncher::SocketProcessOptions& _options )
+			: BindingBase( _options ) {}
 		private:
 
 		pair< unsigned char*,size_t > Results( const string& results )
@@ -85,7 +83,7 @@ namespace RestData
 			What& record;
 		};
 
-		pair< unsigned char*,size_t > operator()( const string method, const string table, const binarystring& PostedContent )
+		pair< unsigned char*,size_t > operator()( const string method, const string table, const Hyper::MimeHeaders& headers, const binarystring& PostedContent )
 		{
 			const string Integrity( mimevalue( headers, "integrity" ) );
 
@@ -110,14 +108,17 @@ namespace RestData
 
 				if ( ! Integrity.empty() )
 				{
-					Getter getter( (*this), query, datapath, fields );
+					Getter getter( (*this), query, options.datapath, fields );
 					const bool ok( getter );
-					if ( ! getter.Same )
+					if ( getter.Same )
 					{
+							ssresults << "|" << query << "|200|" << endl;
+					} else {
 						if ( getter.found.empty() )
 							ssresults << "|JRN" << line << endl << "|NUL|" << endl;
 						else 
-							ssresults << "|JRN" << line << endl << "|DBR" << getter.found << endl; }
+							ssresults << "|JRN" << line << endl << "|DBR" << getter.found << endl; 
+					}
 					continue;
 				}
 
