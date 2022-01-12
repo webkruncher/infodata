@@ -53,7 +53,6 @@ namespace RestData
 			: BindingBase( _options, _headers, _datapath ) {}
 		private:
 
-
 		pair< unsigned char*,size_t > Results( const string query="", const bool integrity=false, const bool pass=false )
 		{
 			stringstream ssr;
