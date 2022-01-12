@@ -63,62 +63,6 @@ namespace RestData
 			return ret;
 		}
 
-#if 0
-		pair< unsigned char*,size_t > CheckIntegrity( const string integrity, const string method, const string query, const stringvector& sv )
-		{
-			stringstream ss;
-			struct Getter : DbRecords::RecordGetter<What>
-			{
-				Getter( What& _record, const string key, const string datapath, const stringvector& _sv )
-					: DbRecords::RecordGetter<What>( key, datapath ), sv( _sv ), record( _record ), Same( false ) {} 
-				virtual bool Hit( const typename What::KeyType& key, typename What::ValueType& value )
-				{
-					//cerr << "Loaded:" << blue << italic << "|" << key << "|" << value << normal << fence;
-					//cerr << "Compare:" << endl << sv << endl;
-					Same=record( value, sv );
-					return false; // don't update
-				}
-				bool Same;
-				private:
-				const stringvector& sv;
-				What& record;
-			} getter( (*this), query, datapath, sv );
-			const bool ok( !!getter );
-			return Results( query, true, getter.Same );
-		}
-
-		pair< unsigned char*,size_t > operator()( const string method, const string query, const stringvector& sv )
-		{
-			const string Integrity( mimevalue( headers, "integrity" ) );
-
-			if ( ! Integrity.empty() )
-				return CheckIntegrity( Integrity, method, query, sv );
-
-			What::operator=( sv );
-
-			DbRecords::RecordUpdater<What> Update( query, What::record, options.datapath );
-			const unsigned long nupdates( Update );
-
-			if ( nupdates > 1 ) throw string( "ERROR - Multiple records" );
-			if ( nupdates == 0 )
-			{
-				cerr << "Cannot update, creating" << endl;
-				DbRecords::RecordCreator<What> Create( query, What::record, options.datapath );
-				const unsigned long createstatus( Create );
-				if ( createstatus ) 
-				{
-					cerr << red << "Cannot create" << normal << endl;
-				} else {
-					cerr << blue << "Created " << query << normal << endl;
-					Status=200;
-				}
-			} else {
-				cerr << blue << "Updated " << nupdates << " " << query << normal << endl;
-				Status=200;
-			}
-			return Results();
-		}
-#else
 
 		struct Getter : DbRecords::RecordGetter<What>
 		{
@@ -186,7 +130,6 @@ namespace RestData
 			}
 			return Results( ssresults.str() );
 		}
-#endif
 	};
 } //RestData
 #endif // INFO_RECORDS_H
