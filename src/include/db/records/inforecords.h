@@ -70,8 +70,6 @@ namespace RestData
 				: DbRecords::RecordGetter<What>( key, datapath ), sv( _sv ), record( _record ), Same( false ) {} 
 			virtual bool Hit( const typename What::KeyType& key, typename What::ValueType& value )
 			{
-				//cerr << "Loaded:" << blue << italic << "|" << key << "|" << value << normal << fence;
-				//cerr << "Compare:" << endl << sv << endl;
 				Same=record( value, sv );
 				if ( ! Same ) 
 				{
@@ -103,14 +101,11 @@ namespace RestData
 			for ( stringvector::const_iterator sit=sv.begin();sit!=sv.end();sit++)
 			{
 				const string line( *sit );
-				//cerr << green << method << fence << table << yellow << line << normal << endl;
 				What& record( *this );
 				stringvector fields; 
 				fields.split( line, "|" );
 				record=fields;
 				const string query( fields[ 1 ] );
-				//cerr << teal << What::record << normal << endl;
-
 
 
 				if ( ! Integrity.empty() )
@@ -122,9 +117,7 @@ namespace RestData
 						if ( getter.found.empty() )
 							ssresults << "|JRN" << line << endl << "|NUL|" << endl;
 						else 
-							ssresults << "|JRN" << line << endl << "|DBR" << getter.found << endl;
-					}
-						//ssresults << fence << query << fence << boolalpha << getter.Same << fence << endl;
+							ssresults << "|JRN" << line << endl << "|DBR" << getter.found << endl; }
 					continue;
 				}
 
@@ -132,10 +125,8 @@ namespace RestData
 				const unsigned long nUpdates( Update( query, What::record ) );
 				if ( nUpdates > 1 ) ssresults << fence << query << fence << 500 << fence << endl;
 				if ( nUpdates == 1 ) ssresults << fence << query << fence << 200 << fence << endl;
-				//if ( nUpdates == 1 ) cerr << "Updated " << nUpdates << endl;
 				if ( nUpdates == 0 )
 				{
-					//cerr << "Creating" << endl;
 					const unsigned long Created( ! Create( query, What::record ) );
 					if ( Created ) ssresults << fence << query << fence << 201 << fence << endl; 
 					else ssresults << fence << query << fence << 501 << fence << endl;
