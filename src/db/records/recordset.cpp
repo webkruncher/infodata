@@ -45,22 +45,6 @@ using namespace DbRecords;
 
 namespace RestData
 {
-	pair< unsigned char*,size_t > BindingBase::operator()( const string& payload ) 
-	{	
-		pair< unsigned char*,size_t > empty( nullptr, 0 );
-		stringvector parts;
-		parts.split( payload, "|" );
-		const size_t npieces( parts.size() );
-		if ( npieces < 3 ) return empty;
-
-		int J( 1 );
-		const string method( parts[ J++ ] );
-		const string url( parts[ J++ ] );
-		const string what( parts[ J++ ] );
-
-		BindingBase& me( *this );
-		return me( method, what, parts );
-	}
 
 } // namespace RestData
 

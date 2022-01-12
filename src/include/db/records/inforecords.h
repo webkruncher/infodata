@@ -35,10 +35,9 @@ namespace RestData
 	{
 		BindingBase( const InfoKruncher::SocketProcessOptions& _options, const Hyper::MimeHeaders& _headers, const string& _datapath ) 
 			: options( _options ), headers( _headers ), datapath( _datapath ), Status( 0 ) {}
-		pair< unsigned char*,size_t > operator()( const string& payload );
+		virtual pair< unsigned char*,size_t > operator()( const string method, const string what, const binarystring& ) = 0;
 		operator unsigned long () { return Status; }
 		private:
-		virtual pair< unsigned char*,size_t > operator()( const string method, const string what, const stringvector& ) = 0;
 		protected:
 		const InfoKruncher::SocketProcessOptions& options;
 		const Hyper::MimeHeaders& headers;
@@ -60,7 +59,7 @@ namespace RestData
 			{
 				ssr << fence << boolalpha << pass << fence << query << What::record; 
 			} else { 
-				ssr << "KrestResult" << fence << What::record; 
+				ssr << "KrestResult" << fence << Status << What::record; 
 			}
 cerr << ssr.str() << endl;
 			const size_t Len( ssr.str().size() );
@@ -94,7 +93,7 @@ cerr << ssr.str() << endl;
 			const bool ok( !!getter );
 			return Results( query, true, getter.Same );
 		}
-
+#if 0
 		pair< unsigned char*,size_t > operator()( const string method, const string query, const stringvector& sv )
 		{
 			const string Integrity( mimevalue( headers, "integrity" ) );
@@ -126,6 +125,41 @@ cerr << ssr.str() << endl;
 			}
 			return Results();
 		}
+#else
+
+		pair< unsigned char*,size_t > operator()( const string method, const string table, const binarystring& PostedContent )
+		{
+			DbRecords::RecordUpdater<What> Update( options.datapath );
+			DbRecords::RecordCreator<What> Create( options.datapath );
+			const string payload( (char*) PostedContent.data(), PostedContent.size() );
+			stringvector sv;
+			sv.split( payload, "\n" );
+			for ( stringvector::const_iterator sit=sv.begin();sit!=sv.end();sit++)
+			{
+				const string line( *sit );
+				cerr << green << method << fence << table << yellow << line << normal << endl;
+				What& record( *this );
+				stringvector fields; 
+				fields.split( line, "|" );
+				record=fields;
+				const string query( fields[ 1 ] );
+				cerr << teal << What::record << normal << endl;
+				const unsigned long nUpdates( Update( query, What::record ) );
+				if ( nUpdates > 1 ) Status=500;
+				if ( nUpdates == 1 ) Status=200;
+				if ( nUpdates == 1 ) cerr << "Updated " << nUpdates << endl;
+				if ( nUpdates == 0 )
+				{
+					cerr << "Creating" << endl;
+					const unsigned long Created( ! Create( query, What::record ) );
+					if ( Created ) Status=201;
+					else Status=500;
+				} 
+				cerr << "Status:" << Status << endl;
+			}
+			return Results();
+		}
+#endif
 	};
 } //RestData
 #endif // INFO_RECORDS_H
