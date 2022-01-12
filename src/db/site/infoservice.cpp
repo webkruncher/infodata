@@ -67,7 +67,7 @@ namespace InfoKruncher
 			kill( 0, SIGUSR1 );
 			return;
 		}
-		cerr << teal << r.ipaddr << fence << r.method << fence << r.resource << endl << r.headers << normal << endl;
+		//cerr << teal << r.ipaddr << fence << r.method << fence << r.resource << endl << r.headers << normal << endl;
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
 		records=r.options.datapath;
 		records+=r;
