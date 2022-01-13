@@ -85,12 +85,10 @@ namespace RestData
 
 		pair< unsigned char*,size_t > operator()( const string method, const string table, const Hyper::MimeHeaders& headers, const binarystring& PostedContent )
 		{
-
-
 			if ( method == "GET" )
 			{
 				stringstream ssresults;
-				if ( table.find( "/list" ) != string::npos ) 
+				if ( table.find( "/list" ) == table.size()-strlen( "/list" ) )
 				{
 					DbRecords::KeyLister<What> lister( options.datapath );
 					lister( ssresults, "" );
@@ -98,7 +96,6 @@ namespace RestData
 					size_t q( table.find( "?" ) );
 					string query;
 					if ( q != string::npos ) { q++; query=table.substr( q, table.size()-q ); }
-cerr << "Print:" << query << endl;
 					DbRecords::RecordPrinter<What> printer( options.datapath );
 					printer( ssresults, query );
 				}
