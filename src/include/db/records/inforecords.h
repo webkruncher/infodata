@@ -85,6 +85,28 @@ namespace RestData
 
 		pair< unsigned char*,size_t > operator()( const string method, const string table, const Hyper::MimeHeaders& headers, const binarystring& PostedContent )
 		{
+
+
+			if ( method == "GET" )
+			{
+				stringstream ssresults;
+				if ( table.find( "/list" ) != string::npos ) 
+				{
+					DbRecords::KeyLister<What> lister( options.datapath );
+					lister( ssresults, "" );
+				} else {
+					size_t q( table.find( "?" ) );
+					string query;
+					if ( q != string::npos ) { q++; query=table.substr( q, table.size()-q ); }
+cerr << "Print:" << query << endl;
+					DbRecords::RecordPrinter<What> printer( options.datapath );
+					printer( ssresults, query );
+				}
+				return Results( ssresults.str() );
+			}
+
+
+
 			const string Integrity( mimevalue( headers, "integrity" ) );
 
 			const string payload( (char*) PostedContent.data(), PostedContent.size() );

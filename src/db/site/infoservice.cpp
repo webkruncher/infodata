@@ -87,6 +87,11 @@ namespace InfoKruncher
 				return ;
 			}
 
+
+		binarystring surrogate;
+		//if ( r.method == "GET" ) DataFace::PostProcessing( r, ServiceName, response, surrogate ); 
+		//else response( 200, "text/plain", ServiceName, false, "", "", "" );
+
 		if ( r.method == "GET" ) DataFace::LoadResponse( r, ServiceName, response );
 		else response( 200, "text/plain", ServiceName, false, "", "", "" );
 	}
