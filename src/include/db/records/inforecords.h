@@ -83,26 +83,24 @@ namespace RestData
 			What& record;
 		};
 
-		pair< unsigned char*,size_t > operator()( const string method, const string table, const Hyper::MimeHeaders& headers, const binarystring& PostedContent )
+		pair< unsigned char*,size_t > operator()( const string method, const string uri, const Hyper::MimeHeaders& headers, const binarystring& PostedContent )
 		{
 			if ( method == "GET" )
 			{
 				stringstream ssresults;
-				if ( table.find( "/list" ) == table.size()-strlen( "/list" ) )
+				if ( uri.find( "/list" ) == uri.size()-strlen( "/list" ) )
 				{
 					DbRecords::KeyLister<What> lister( options.datapath );
 					lister( ssresults, "" );
 				} else {
-					size_t q( table.find( "?" ) );
+					size_t q( uri.find( "?" ) );
 					string query;
-					if ( q != string::npos ) { q++; query=table.substr( q, table.size()-q ); }
+					if ( q != string::npos ) { q++; query=uri.substr( q, uri.size()-q ); }
 					DbRecords::RecordPrinter<What> printer( options.datapath );
 					printer( ssresults, query );
 				}
 				return Results( ssresults.str() );
 			}
-
-
 
 			const string Integrity( mimevalue( headers, "integrity" ) );
 
