@@ -65,7 +65,7 @@ namespace RestData
 		struct Getter : DbRecords::RecordGetter<What>
 		{
 			Getter( What& _record, const string key, const string datapath, const stringvector& _sv )
-				: DbRecords::RecordGetter<What>( key, datapath ), sv( _sv ), record( _record ), Same( false ) {} 
+				: DbRecords::RecordGetter<What>( What::Thang(), key, datapath ), sv( _sv ), record( _record ), Same( false ) {} 
 			virtual bool Hit( const typename What::KeyType& key, typename What::ValueType& value )
 			{
 				Same=record( value, sv );
