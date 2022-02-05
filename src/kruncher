@@ -1,0 +1,18 @@
+
+fig="/home/jmt/Info/infodata/src/text"
+xml="${fig}/krest.xml"
+
+
+for service in `informationkrunchers | awk 'BEGIN { FS = "|" }{ if ($8=="development" ) print $2; }'`; do
+	if [ "${1}" == "-stop" ]; then
+		sudo pkill ${service} 
+		shift
+	else
+		sudo pkill ${service} 
+		sleep 2
+		#sudo ${service} ${1} --xml ${xml}  --node data --filter jackmthompson.ninja
+		logger "${service} $@ --xml ${xml}  "
+		sudo ${service} $@ --xml ${xml}  --filter jackmthompson.ninja -d &
+	fi
+done;
+
