@@ -1,0 +1,11 @@
+src.build
+CMakeCache.txt
+CMakeFiles
+Makefiles
+Makefile
+*.cmake
+
+journal.txt
+progress.txt
+*.*.swp
+*.core
