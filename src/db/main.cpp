@@ -128,7 +128,7 @@ int main( int argc, char** argv )
 		for ( size_t c=0;  c < nSites; c++ )
 		{
 			InfoKruncher::Service<InfoKruncher::DbSite>& site( sites[ c ] );
-			const InfoKruncher::SocketProcessOptions& svcoptions( workerlist[ c ] );
+			const InfoKruncher::SocketProcessOptions& svcoptions( *workerlist[ c ] );
 			site.ForkAndServe( svcoptions );
 		}
 
