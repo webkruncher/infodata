@@ -5,7 +5,6 @@
 
 set (LIBSRC
 	infodb.cpp
-	infoservice.cpp
 	infoerrors.cpp
 )
 

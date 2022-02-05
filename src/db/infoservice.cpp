@@ -32,69 +32,101 @@
 #include <site/infodataservice.h>
 #include <exexml.h>
 #include <site/PostProcessor.h>
+#include <datarest.h>
+
+#include RestInterface 
+
+
 
 
 namespace InfoKruncher
 {
-	const string ServiceName( "InformationKruncher" );
+	string ServiceName( "InfoData" );
 
-	void InfoSite::LoadResponse( InfoKruncher::Responder& r, InfoKruncher::RestResponse& Responder, InfoKruncher::ThreadLocalBase& threadlocal )
+	struct InfoResource : InfoDataService::DataResource
 	{
+		InfoResource( const InfoKruncher::Responder& _responder, Visitors::VisitorBase& _visitor  ) 
+			: DataResource( _responder,  _visitor ) {}
+		operator int () { return 0; }
+	};
+
+	void InfoSite::LoadResponse( InfoKruncher::Responder& r, InfoKruncher::RestResponse& response, InfoKruncher::ThreadLocalBase& threadlocal )
+	{
+		//Log( VERB_ALWAYS, ServiceName, r.resource );
+		//InfoDataService::SetupDB( r.options.datapath );
+		const string ip( dotted( r.ipaddr ) );
+		if ( ip != "127.0.0.1" )
+		{
+			//cerr << red << r.ipaddr << fence << r.method << fence << r.resource << normal << endl;
+			const string uauth( "UnAuthorized" );
+			response( 401, "text/plain", ServiceName, false, "", "", uauth );
+			return;
+		}
+		if ( r.resource == "/exit" )
+		{
+			cerr << red << "Exiting" << normal << endl;
+			Log( VERB_ALWAYS, "infoservice", "Raising signal" );
+			response( 200, "text/plain", ServiceName, false, "", "", "Server is exiting" );
+			kill( 0, SIGUSR1 );
+			return;
+		}
+		//cerr << teal << r.ipaddr << fence << r.method << fence << r.resource << endl << r.headers << normal << endl;
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
-		//records=r.options.datapath;
+
 		records+=r;
 
-		InfoDataService::DataResource Payload( r, records );
+		InfoResource Payload( r, records );
 		const int payloadstatus( Payload );
 		if ( payloadstatus ) 
 		{
-			Responder( payloadstatus, Payload.contenttype, ServiceName, false, "", "", Payload.payload.str() );
+			response( payloadstatus, Payload.contenttype, ServiceName, false, "", "", Payload.payload.str() );
 			return ;
 		}
 
 		if ( ( r.method == "POST" ) || ( r.method == "PUT" ) || ( r.method == "PATCH" ) )
 			if ( ( r.ContentLength < 0 ) || ( r.ContentLength > 4096 ) )
 			{
-				Responder( 414, Payload.contenttype, ServiceName, false, "", "", Payload.payload.str() );
+				response( 414, Payload.contenttype, ServiceName, false, "", "", Payload.payload.str() );
 				return ;
 			}
 
-		InfoDb::Site::Roles roles( r.options.scheme, Payload.uri, r.headers, r.ipaddr, r.options.text );	
-		InfoAuth::Authorization auth( Payload.payload.str(), Payload.contenttype, roles );
-		const int AuthorizationStatus( auth );
-
-		Responder( AuthorizationStatus, Payload.contenttype, ServiceName, records.IsNewCookie(), records.CookieName(), records.Cookie(), auth );
-		return ;
+		//cerr << r.resource << endl;
+		if ( r.method == "GET" ) KruncherSpace::LoadResponse( r, ServiceName, response, threadlocal );
+		else response( 200, "text/plain", ServiceName, false, "", "", "" );
 	}
 
 	bool InfoSite::ProcessForm( const string formpath, stringmap& formdata )
 	{
 		stringstream ssmsg;  ssmsg << "InfoSite::ProcessForm" << fence << formpath << fence << formdata;
-		Log( ssmsg.str() );
+		Log( VERB_ALWAYS, "InfoSite::ProcessForm", ssmsg.str() );
 		return true;
 	}
 
-	void InfoSite::PostProcessing( InfoKruncher::Responder&, InfoKruncher::RestResponse& DefaultResponse, const binarystring& PostedContent, InfoKruncher::ThreadLocalBase& threadlocal ) 
-	{
-		stringmap formdata;
-		PostProcessingXml::PostedXml xml( formdata, *this );
-		xml.Load( (char*)PostedContent.c_str() );
-		if ( ! xml ) Log( "InfoSite::PostProcessing", "Form processing failed" );
-	}
+	void InfoSite::PostProcessing
+		( InfoKruncher::Responder& respond, InfoKruncher::RestResponse& response, const binarystring& PostedContent, InfoKruncher::ThreadLocalBase& threadlocal ) 
+			{ KruncherSpace::PostProcessing( respond, ServiceName, response, PostedContent, threadlocal ); }
 
 	void InfoSite::Throttle( const InfoKruncher::SocketProcessOptions& svcoptions )
 		{ usleep( (rand()%100)+20000 ); }
+
+	ThreadLocalBase* InfoSite::AllocateThreadLocal( const InfoKruncher::SocketProcessOptions& options )
+	{ 
+		return KruncherSpace::AllocateThreadLocal( options ); 
+	}
+
+
 } // InfoKruncher
 
 namespace InfoDataService
 {
-
-	void ShowRecords( const KruncherTools::Args& args, const InfoKruncher::SocketProcessOptions& options )
+	void SetupDB( const string datapath )
 	{
-		BdbSpace::DbMetaData meta( args );
-		if ( ! meta ) return ;
-		cerr << "#" << fence << meta.TableName() << fence << meta.Key() << fence << endl;
-		//DbRecords::RecordPrinter<Visitors::VisitorData>( cout, meta.Key(), options.datapath );
+		KruncherSpace::Allocate( datapath );
 	}
 
+	void TeardownDB()
+	{
+		KruncherSpace::Release();
+	}
 } // InfoDataService
+

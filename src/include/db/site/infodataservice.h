@@ -29,12 +29,19 @@
 #ifndef INFODATASERVICE_H
 #define INFODATASERVICE_H
 
-#include <db/site/infodb.h>
 #include <recordset.h>
+#include <db/site/infodb.h>
 #include <visitors/visitor.h>
+
+namespace InfoKruncher
+{
+	extern string ServiceName;
+} // namespace InfoKruncher
 
 namespace InfoDataService
 {
+	void SetupDB( const string datapath );
+	void TeardownDB();
 	struct Visitor : private DbRecords::RecordSetBase, Visitors::VisitorBase
 	{
 		Visitor() : NewVisitor( false ) { }
@@ -174,7 +181,7 @@ namespace InfoDataService
 		return 0;
 	}
 
-	void ShowRecords( const KruncherTools::Args& args, const InfoKruncher::SocketProcessOptions& options );
+	//void ShowRecords( const KruncherTools::Args& args, const InfoKruncher::SocketProcessOptions& options );
 
 } // InfoDataService
 

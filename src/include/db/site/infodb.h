@@ -58,7 +58,8 @@ namespace InfoDb
 
 } // InfoDb
 
-inline in_addr& operator<<( in_addr& a, const string& s )
+
+inline in_addr& assign( in_addr& a, const string& s )
 {
 	if ( s.empty() ) return a;
 	inet_aton( s.c_str(), &a );
@@ -66,3 +67,4 @@ inline in_addr& operator<<( in_addr& a, const string& s )
 }
 
 #endif // INFOKRUNCHER_DATA_H
+

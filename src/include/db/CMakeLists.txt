@@ -1,4 +1,5 @@
 
+Banner()
 file(GLOB includes ${CMAKE_CURRENT_LIST_DIR}/*.h)
 
 install(
@@ -29,6 +30,5 @@ target_link_libraries(
 
 
 
-add_subdirectory( records ) 
 add_subdirectory( auth )
 add_subdirectory( site )
