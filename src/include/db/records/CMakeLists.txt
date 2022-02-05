@@ -1,4 +1,11 @@
 
+Headers(
+	krunchercore
+	exexml
+	datakruncher
+	informationkruncher
+)
+
 file(GLOB includes ${CMAKE_CURRENT_LIST_DIR}/*.h)
 
 install(

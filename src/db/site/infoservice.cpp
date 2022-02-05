@@ -38,7 +38,7 @@ namespace InfoKruncher
 {
 	const string ServiceName( "InformationKruncher" );
 
-	void InfoSite::LoadResponse( InfoKruncher::Responder& r, InfoKruncher::RestResponse& Responder )
+	void InfoSite::LoadResponse( InfoKruncher::Responder& r, InfoKruncher::RestResponse& Responder, InfoKruncher::ThreadLocalBase& threadlocal )
 	{
 		DbRecords::RecordSet<InfoDataService::Visitor> records( r.options.datapath );
 		//records=r.options.datapath;
@@ -74,7 +74,7 @@ namespace InfoKruncher
 		return true;
 	}
 
-	void InfoSite::PostProcessing( InfoKruncher::Responder&, InfoKruncher::RestResponse& DefaultResponse, const string& PostedContent ) 
+	void InfoSite::PostProcessing( InfoKruncher::Responder&, InfoKruncher::RestResponse& DefaultResponse, const binarystring& PostedContent, InfoKruncher::ThreadLocalBase& threadlocal ) 
 	{
 		stringmap formdata;
 		PostProcessingXml::PostedXml xml( formdata, *this );
@@ -94,7 +94,7 @@ namespace InfoDataService
 		BdbSpace::DbMetaData meta( args );
 		if ( ! meta ) return ;
 		cerr << "#" << fence << meta.TableName() << fence << meta.Key() << fence << endl;
-		DbRecords::RecordPrinter<Visitors::VisitorData>( cout, meta.Key(), options.datapath );
+		//DbRecords::RecordPrinter<Visitors::VisitorData>( cout, meta.Key(), options.datapath );
 	}
 
 } // InfoDataService

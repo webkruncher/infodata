@@ -37,7 +37,7 @@
 using namespace std;
 #include <Database.h>
 //#include <DbCursor.h>
-#include <records/recordset.h>
+#include <recordset.h>
 #include <sys/stat.h>
 
 

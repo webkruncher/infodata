@@ -45,7 +45,9 @@ namespace InfoKruncher
 		}
 		void PostProcessing( InfoKruncher::Responder& responder, InfoKruncher::RestResponse& DefaultResponse, const string& PostedContent ) 
 		{
-			InfoSite::PostProcessing( responder, DefaultResponse, PostedContent );
+
+Log( VERB_ALWAYS, "BRIDGE_OUT", "PostProcessing" );
+//			InfoSite::PostProcessing( responder, DefaultResponse, PostedContent );
 		}
 	};
 	template<> 

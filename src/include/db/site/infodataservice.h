@@ -30,7 +30,7 @@
 #define INFODATASERVICE_H
 
 #include <db/site/infodb.h>
-#include <db/records/recordset.h>
+#include <recordset.h>
 #include <visitors/visitor.h>
 
 namespace InfoDataService
@@ -85,7 +85,7 @@ namespace InfoDataService
 				SetCookie( ExistingCookie );
 
 			//commit();
-			DbRecords::RecordCreator<Visitors::VisitorData>( r.ipaddr, hit, r.options.datapath  );
+			//DbRecords::RecordCreator<Visitors::VisitorData>( r.ipaddr, hit, r.options.datapath  );
 		}
 
 		bool IsNewCookie() const { return NewVisitor; }
