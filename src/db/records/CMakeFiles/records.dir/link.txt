@@ -1,0 +1,2 @@
+/usr/bin/ar qc librecords.a CMakeFiles/records.dir/recordset.cpp.o
+/usr/bin/ranlib librecords.a
