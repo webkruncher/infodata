@@ -121,6 +121,18 @@ fi
 
 
 
+function KrBuildScanTest
+{
+cat <<EOF
+|/home/jmt/Info/testfactory/src::infobuilder::krunchertrace|1980-01-01T00:00:00Z|
+|/home/jmt/Info/testfactory/src::infobuilder::krunchercore|1980-01-01T00:00:00Z|
+EOF
+}
+
+if [ "${1}" == "-krbuildertest" ]; then
+	KrBuildScanTest | krbuild -d -o inform -q "/manifest" -m POST -
+fi
+
 
 exit 0
 
