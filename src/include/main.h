@@ -33,6 +33,8 @@
 #include <infotools.h>
 #include <infodataservice.h>
 
+
+
 namespace InfoKruncher
 {
 	struct DbSite : InfoSite
@@ -156,4 +158,7 @@ int main( int argc, char** argv )
 
 	return 0;
 }
+
+
+
 

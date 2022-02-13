@@ -34,6 +34,9 @@
 #include <site/PostProcessor.h>
 #include <datarest.h>
 
+
+
+#include MainEntryPoint
 #include RestInterface 
 
 

@@ -40,6 +40,7 @@ foreach(KrunchDataServer IN LISTS KrunchDataServers )
 		set(DataLibPaths)
 		set(DataLibs)
 		set(RestInterface)
+		set(MainEntryPoint)
 		set(KruncherSpace)
 		set(INCLUDE_PATHS)
 		set(LIBRARY_PATHS)
@@ -82,7 +83,6 @@ foreach(KrunchDataServer IN LISTS KrunchDataServers )
 
 
 		add_executable( ${KrunchDataServer}  
-			main.cpp
 			infoservice.cpp
 		)
 
@@ -90,6 +90,7 @@ foreach(KrunchDataServer IN LISTS KrunchDataServers )
 
 		execute_process( COMMAND bash -c "informationkrunchers  | grep -e \"^|${KrunchDataServer}|\"  | cut -d '|' -f6 | sed 's/$/;/'  | tr -d '\n' " OUTPUT_VARIABLE RestInterface )
 		execute_process( COMMAND bash -c "informationkrunchers  | grep -e \"^|${KrunchDataServer}|\"  | cut -d '|' -f7 | sed 's/$/;/'  | tr -d '\n' " OUTPUT_VARIABLE KruncherSpace )
+		execute_process( COMMAND bash -c "informationkrunchers  | grep -e \"^|${KrunchDataServer}|\"  | cut -d '|' -f9 | sed 's/$/;/'  | tr -d '\n' " OUTPUT_VARIABLE MainEntryPoint )
 
 		
 		if(DEFINED ENV{KRUNCHER_DEV_VERBOSE})
@@ -99,6 +100,7 @@ foreach(KrunchDataServer IN LISTS KrunchDataServers )
 				TraceListAlways( "DataLibPaths " DataLibPaths ${MagentaColor} )
 				TraceListAlways( "DataLibs" DataLibs ${GreenColor} )
 				message( "${MagentaBkColor}${BlackColor}RestInterface:${RestInterface}${NormalColor}" )
+				message( "${YellowBkColor}${BlackColor}MainEntryPoint:${MainEntryPoint}${NormalColor}" )
 			endif()
 		endif()
 		target_compile_options( 
@@ -106,6 +108,7 @@ foreach(KrunchDataServer IN LISTS KrunchDataServers )
 				PUBLIC 
 					-DKruncherSpace=${KruncherSpace}
 					-DRestInterface=${RestInterface}
+					-DMainEntryPoint=${MainEntryPoint}
 		)
 
 		target_include_directories(
