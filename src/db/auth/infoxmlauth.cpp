@@ -29,6 +29,7 @@
 #include <infosite.h>
 #include <infoxmlauth.h>
 #include <exexml.h>
+#if 0
 
 namespace InfoAuth
 {
@@ -141,5 +142,5 @@ namespace InfoAuth
 		} 
 	}
 } // InfoAuth
-
+#endif
 

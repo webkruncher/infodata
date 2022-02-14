@@ -36,7 +36,7 @@
 
 namespace InfoDataService
 {
-
+#if 0
 	int Resource::HttpError( const int HttpErrorNumber )
 	{
 		payload << "<html><h1>Error " << HttpErrorNumber <<  ", " << Hyper::statusText( HttpErrorNumber ) << "</h1></html>" << endl;
@@ -56,6 +56,8 @@ namespace InfoDataService
 			return false;
 		return true;
 	}
+#endif
+
 } //namespace InfoDataService
 
 

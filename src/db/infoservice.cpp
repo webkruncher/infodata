@@ -27,6 +27,7 @@
 
 #include <infokruncher.h>
 #include <infosite.h>
+#include <site/infodb.h>
 #include <auth/infoxmlauth.h>
 #include <visitors/visitor.h>
 #include <site/infodataservice.h>

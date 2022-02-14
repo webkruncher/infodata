@@ -22,11 +22,11 @@ Libraries(
 	krunchertrace
 	krunchercore
 	informationkruncher
+	/home/jmt/libdb/build_unix/libdb_cxx.a
 )
 
 
-add_subdirectory( auth )
-add_subdirectory( site )
+#add_subdirectory( auth )
 
 
 Banner()
@@ -79,6 +79,7 @@ foreach(KrunchDataServer IN LISTS KrunchDataServers )
 			informationkruncher
 			datafactory
 			${DataLibs}
+			/home/jmt/libdb/build_unix/libdb_cxx.a
 		)
 
 
@@ -136,8 +137,6 @@ foreach(KrunchDataServer IN LISTS KrunchDataServers )
 				PUBLIC
 					ssl
 					crypto
-					site
-					auth
 					${LIBRARIES}
 		)
 

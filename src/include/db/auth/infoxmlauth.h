@@ -29,7 +29,7 @@
 #ifndef INFOXMLAUTH_H
 #define INFOXMLAUTH_H
 
-
+#include <exexml.h>
 
 namespace InfoAuth
 {
@@ -46,6 +46,114 @@ namespace InfoAuth
 		int Authorize();
 	};
 
+	using namespace XmlFamily;
+
+	struct Item : XmlNode
+	{
+		friend struct Configuration;
+		virtual XmlNodeBase* NewNode(Xml& _doc,XmlNodeBase* parent,stringtype name ) const
+		{ 
+			XmlNodeBase* ret(NULL);
+			ret=new Item(_doc,parent,name,authorization, filter); 
+			Item& n=static_cast<Item&>(*(ret));
+			n.SetTabLevel( __tablevel+1 );
+			return ret;
+		}
+		virtual ostream& operator<<(ostream& o) const ;
+		Item(Xml& _doc,const XmlNodeBase* _parent,stringtype _name, Authorization& _authorization, const stringset& _filter ) 
+			: XmlNode(_doc,_parent,_name ), authorization( _authorization ), filter( _filter )  {}
+		operator bool () 
+		{
+
+			for (XmlFamily::XmlNodeSet::iterator it=children.begin();it!=children.end();it++) 
+			{
+				Item& n=static_cast<Item&>(*(*it));
+				if (!n) return false;
+			}
+			return true;
+		}
+	
+		private:
+		bool Filtered() const
+		{
+			XmlFamily::XmlAttributes::const_iterator found( attributes.find( "role" ) );
+			if ( found == attributes.end() ) return false;
+			const string NodeRole( found->second );
+			if ( NodeRole.empty() ) 
+			{
+				if ( filter.empty() ) return false;
+			} else return true;
+
+			stringset NodeRoles;
+			NodeRoles.split( NodeRole, "," );
+
+			stringset intersection;
+			set_intersection( NodeRoles.begin(), NodeRoles.end(), filter.begin(), filter.end(), inserter(intersection, intersection.begin()) );
+			if ( intersection.empty() ) return true;
+			return false;
+
+		}
+		Authorization& authorization;
+		const stringset& filter;
+	};
+	inline ostream& operator<<(ostream& o,const Item& xmlnode) { return xmlnode.operator<<(o); }
+
+	inline ostream& Item::operator<<(ostream& o)  const
+	{
+		if ( Filtered() ) return o;
+		return XmlNode::operator<<(o);
+	}
+
+	struct Configuration : Xml
+	{
+		Configuration( Authorization& _authorization, const stringset& _filter ) : authorization( _authorization ), filter( _filter ) {}
+		virtual XmlNode* NewNode(Xml& _doc,stringtype name) const { return new Item(_doc,NULL,name, authorization, filter ); } 
+		ostream& operator<<(ostream& o) const 
+		{
+			if ( ! Root ) return o;
+			const Item& nodes( static_cast< Item& >( *Root ) );
+			o << nodes;
+			return o;
+		}
+		operator Item& () { if (!Root) throw string("No root node"); return static_cast<Item&>(*Root); }
+
+		operator bool() 
+		{
+			if ( ! Root ) return false;
+			Item& item( static_cast< Item& >( *Root ) );
+			return !!item;
+		}
+
+		private:
+		Authorization& authorization;
+		const stringset& filter;
+	};
+	inline ostream& operator<<(ostream& o,Configuration& xml){return xml.operator<<(o);}
+
+	inline int Authorization::Authorize()
+	{
+		InfoAuth::Configuration xml( *this, roles );
+		xml.Load( (char*)text.c_str() );
+		if (  ! xml ) return 401;;
+		stringstream ss;
+		ss << xml;
+		AuthorizedText=ss.str();
+		return 200;
+	}
+
+	inline Authorization::operator int ()
+	{
+		if ( contenttype == string( "text/xml" ) )
+		{
+			const int authorized( Authorize() );
+			//cerr << redbk << contenttype << fence << "Authorizing" <<  fence << greenbk << authorized << normal << endl;
+			return authorized;
+		} else {
+			AuthorizedText=text;
+			//cerr << red << contenttype << fence << "Allowing anyone" <<  normal << endl;
+			return 200;
+		} 
+	}
 } // InfoDb
 
 #endif //INFOXMLAUTH_H

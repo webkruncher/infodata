@@ -33,6 +33,7 @@
 #include <db/site/infodb.h>
 #include <visitors/visitor.h>
 
+#include <exexml.h>
 namespace InfoKruncher
 {
 	extern string ServiceName;
@@ -181,10 +182,127 @@ namespace InfoDataService
 		return 0;
 	}
 
-	//void ShowRecords( const KruncherTools::Args& args, const InfoKruncher::SocketProcessOptions& options );
+
+
+
+	inline int Resource::HttpError( const int HttpErrorNumber )
+	{
+		payload << "<html><h1>Error " << HttpErrorNumber <<  ", " << Hyper::statusText( HttpErrorNumber ) << "</h1></html>" << endl;
+		contenttype="text/html";
+		return HttpErrorNumber;
+	}
+	
+	inline bool Resource::CookieCheck( const bool IsDefault, const Visitors::VisitorBase& visitor )
+	{
+		if ( 
+			( ! IsDefault ) && 
+			( visitor.IsNewCookie() )  &&
+			( contenttype != "text/javascript" ) &&
+			( contenttype != "application/xhtml+xml" ) &
+			( contenttype != "text/css" )
+		)
+			return false;
+		return true;
+	}
 
 } // InfoDataService
 
+namespace InfoDb
+{
+	namespace Site
+	{
+		using namespace XmlFamily;
+
+		struct Item : XmlNode
+		{
+			friend struct Configuration;
+			virtual XmlNodeBase* NewNode(Xml& _doc,XmlNodeBase* parent,stringtype name ) const
+			{ 
+				XmlNodeBase* ret(NULL);
+				ret=new Item(_doc,parent,name,authorization, filter); 
+				nodemap( name, ret );
+				Item& n=static_cast<Item&>(*(ret));
+				n.SetTabLevel( __tablevel+1 );
+				return ret;
+			}
+
+			Item(Xml& _doc,const XmlNodeBase* _parent,stringtype _name, Roles& _authorization, const string _filter ) 
+				: XmlNode(_doc,_parent,_name ), authorization( _authorization ), filter( _filter )  {}
+
+			void operator ()( stringstack path )
+			{
+				const string p( path.top() );
+				path.pop();
+				if ( path.empty() )
+				{
+					XmlFamily::XmlAttributes::const_iterator ipaddrit( attributes.find( "ipaddr" ) );
+					XmlFamily::XmlAttributes::const_iterator roleit( attributes.find( "role" ) );
+					if ( roleit != attributes.end() ) 
+					{
+						if ( ipaddrit != attributes.end() ) 
+						{
+							if ( ipaddrit->second == filter )
+								authorization.UserRoles.split( roleit->second, ","  ); 
+						}
+					}
+					return;
+				} 
+				const string next( path.top() );
+				NodeMap::iterator nit( nodemap.find( next ) );
+				if ( nit != nodemap.end() )
+				{
+					for ( vector<XmlNodeBase*>::iterator vit=nit->second.begin();vit!=nit->second.end();vit++)
+					{
+						XmlNodeBase* b( *vit );
+						Item& n( static_cast<Item&>( *b ) );
+						n( path );
+					}
+				}
+			}
+		
+			private:
+			Roles& authorization;
+			const string filter;
+			mutable NodeMap nodemap;
+		};
+
+
+		struct Configuration : Xml
+		{
+			Configuration( Roles& _authorization, const string _filter ) : authorization( _authorization ), filter( _filter ) {}
+			virtual XmlNode* NewNode(Xml& _doc,stringtype name) const { return new Item(_doc,NULL,name, authorization, filter ); } 
+			operator Item& () { if (!Root) throw string("No root node"); return static_cast<Item&>(*Root); }
+
+			void operator ()( stringstack path)
+			{
+				if ( ! Root ) return;
+				Item& item( static_cast< Item& >( *Root ) );
+				item( path );
+			}
+
+			private:
+			Roles& authorization;
+			const string filter;
+		};
+
+		inline Roles::operator stringset& ()
+		{
+			if ( scheme != InfoKruncher::https )
+			{
+				UserRoles.clear();
+				return UserRoles;
+			}
+			const string ip( dotted( ipaddr ) );
+			Configuration xml( *this, ip );
+			xml.Load( (char*) text.c_str() );
+			stringstack path;
+			path.split( "data/roles/user", "/" );
+			xml( path );
+			return UserRoles;
+		}	
+	
+	} // Site
+} // InfoDb
 
 #endif //INFODATASERVICE_H
 
