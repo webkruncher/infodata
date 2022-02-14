@@ -1,36 +1,7 @@
 
-Headers(
-	krunchercore
-	krunchercore::tracer
-	exexml
-	datakruncher
-	informationkruncher
-)
-
-
-LibraryPaths(
-	krunchercore::global/tracer/
-	krunchercore::global/
-	krunchercore::ut/Directory/
-	krunchercore::ut/
-	datafactory::data/
-	informationkruncher::socks/
-)
-
-
-Libraries(
-	krunchertrace
-	krunchercore
-	informationkruncher
-	/home/jmt/libdb/build_unix/libdb_cxx.a
-)
-
-
-#add_subdirectory( auth )
 
 
 Banner()
-
 
 execute_process( COMMAND bash -c "informationkrunchers | sed '/^#/d' | cut -d '|' -f2 | sort | uniq | sed 's/$/;/'  | tr -d '\n' " OUTPUT_VARIABLE KrunchDataServers )
 foreach(KrunchDataServer IN LISTS KrunchDataServers )
