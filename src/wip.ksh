@@ -17,7 +17,7 @@ Build -install
 popd
 
 Build -install
-kruncher -v "SERVICE|DBCURSOR3|REST3" 
+kruncher $@ -v "SERVICE|DBCURSOR3|REST3" 
 
 #&& ./go -krbuildertest
 
