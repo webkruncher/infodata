@@ -63,7 +63,7 @@ namespace InfoKruncher
 		void InfoKruncher::Service< DbSite >::ForkAndServe( PROPERTIES_BASE& node, const SocketProcessOptions& svcoptions )
 	{
 		InfoDataService::SetupDB( svcoptions.datapath );
-		RunService( svcoptions );
+		RunService( node, svcoptions );
 	}
 
 	template<> void InfoKruncher::Service< DbSite >::Terminate() 
