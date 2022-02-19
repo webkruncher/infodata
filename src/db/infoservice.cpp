@@ -25,6 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <infotools.h>
 #include <infokruncher.h>
 #include <infosite.h>
 #include <site/infodb.h>

@@ -26,6 +26,7 @@
  */
 
 
+#include <infotools.h>
 #include <infokruncher.h>
 #include <infosite.h>
 #include <exexml.h>
@@ -57,12 +58,14 @@ namespace InfoKruncher
 			return InfoSite::AllocateThreadLocal( options );
 		}
 	};
+
 	template<> 
-		void InfoKruncher::Service< DbSite >::ForkAndServe( const SocketProcessOptions& svcoptions )
+		void InfoKruncher::Service< DbSite >::ForkAndServe( PROPERTIES_BASE& node, const SocketProcessOptions& svcoptions )
 	{
 		InfoDataService::SetupDB( svcoptions.datapath );
 		RunService( svcoptions );
 	}
+
 	template<> void InfoKruncher::Service< DbSite >::Terminate() 
 	{ 
 		subprocesses.Terminate(); 
@@ -85,6 +88,7 @@ int main( int argc, char** argv )
 		//VERBOSITY=VERB_CONSOLE;
 		InfoKruncher::Options< InfoKruncher::ServiceList > options( argc, argv );
 		if ( ! options ) throw string( "Invalid options" );
+		PROPERTIES_BASE& Cfg( options );
 
 
 		
@@ -131,7 +135,7 @@ int main( int argc, char** argv )
 		{
 			InfoKruncher::Service<InfoKruncher::DbSite>& site( sites[ c ] );
 			const InfoKruncher::SocketProcessOptions& svcoptions( *workerlist[ c ] );
-			site.ForkAndServe( svcoptions );
+			site.ForkAndServe( Cfg, svcoptions );
 		}
 
 		unsigned long tick( 1 );
