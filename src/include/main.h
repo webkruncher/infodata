@@ -92,7 +92,6 @@ int main( int argc, char** argv )
 
 
 		
-		//cerr << yellow << "krestdb is starting up" << normal << endl;
 		{
 
 			const string verbose( options.svalue( "-v", "--verbose", ""  ) );

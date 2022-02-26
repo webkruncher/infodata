@@ -292,6 +292,7 @@ namespace InfoDb
 				UserRoles.clear();
 				return UserRoles;
 			}
+cerr << "InfoDataService.h LoadXml" << endl;
 			const string ip( dotted( ipaddr ) );
 			Configuration xml( *this, ip );
 			xml.Load( (char*) text.c_str() );
