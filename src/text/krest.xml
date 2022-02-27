@@ -31,11 +31,18 @@
 				port="81"
 			>
 			</tickerdata>
+			<tickerkruncher
+				path="/home/jmt/websites/text/webkruncher/"
+				path="/home/jmt/websites/text/jackmthompson.ninja/"
+				scheme="http"
+				port="87"
+			>
+			</tickerkruncher>
 			<data
 				path="/home/jmt/websites/text/webkruncher/"
 				path="/home/jmt/websites/text/jackmthompson.ninja/"
 				scheme="http"
-				port="81"
+				port="86"
 			>
 			</data>
 			<site
